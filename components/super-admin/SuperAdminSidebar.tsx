@@ -7,7 +7,6 @@
     ShieldCheck, BarChart2, Settings, LogOut,
     Map, Megaphone, DollarSign
     } from "lucide-react"
-    import { useState } from "react"
     import { createClient } from "@/lib/supabase/client"
 
     const navSections = [
@@ -20,10 +19,10 @@
     {
         label: null,
         items: [
-        { href: "/super-admin/users",            label: "Kelola Mitra",     icon: Users },
+        { href: "/super-admin/umkm",             label: "Kelola Mitra",     icon: Users },
         { href: "/super-admin/kelola-wisata",    label: "Kelola Wisata",    icon: Map },
         { href: "/super-admin/konten",           label: "Kelola Konten",    icon: FileText },
-        { href: "/super-admin/umkm",             label: "Iklan & Promosi",  icon: Megaphone },
+        { href: "/super-admin/iklan",            label: "Iklan & Promosi",  icon: Megaphone }, // <--- Tautan sudah diperbaiki!
         { href: "/super-admin/laporan-platform", label: "Laporan Keuangan", icon: DollarSign },
         { href: "/super-admin/konfigurasi",      label: "Pengaturan Platform", icon: Settings },
         ]
