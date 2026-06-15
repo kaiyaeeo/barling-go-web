@@ -171,56 +171,53 @@
             <p className="text-sm text-gray-400 mt-0.5">{PAGE_DESC[activeTab]}</p>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6">
-
-            {/* ===== LEFT SIDEBAR ===== */}
-            <div className="w-full md:w-60 shrink-0">
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Settings size={11} /> Konfigurasi
-                    </p>
+            {/* ===== TOP TAB NAV ===== */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+            {/* Platform status strip */}
+            <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${formUmum.isOnline ? "bg-emerald-400 animate-pulse" : "bg-gray-400"}`} />
+                <span className="text-xs font-semibold text-gray-600">{formUmum.isOnline ? "Platform Online" : "Maintenance"}</span>
+                <span className="text-gray-300 mx-1">·</span>
+                <span className="text-xs text-gray-400">{formUmum.nama} · v1.0</span>
                 </div>
-                <nav className="p-2 space-y-0.5">
-                    {(Object.keys(TAB_CONFIG) as Tab[]).map((tab) => {
-                    const { icon: Icon, label, desc } = TAB_CONFIG[tab]
-                    const isActive = activeTab === tab
-                    return (
-                        <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all group ${
-                            isActive
-                            ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border border-[#6EB8BB]/20"
-                            : "text-gray-600 hover:bg-gray-50 border border-transparent"
-                        }`}
-                        >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                            isActive ? "bg-[#6EB8BB]/20" : "bg-gray-100 group-hover:bg-gray-200"
-                        }`}>
-                            <Icon size={16} className={isActive ? "text-[#6EB8BB]" : "text-gray-500"} />
-                        </div>
-                        <div className="min-w-0">
-                            <p className={`text-sm font-semibold leading-tight truncate ${isActive ? "text-[#6EB8BB]" : "text-gray-700"}`}>{label}</p>
-                            <p className="text-[11px] text-gray-400 mt-0.5 truncate">{desc}</p>
-                        </div>
-                        </button>
-                    )
-                    })}
-                </nav>
-
-                {/* Quick info */}
-                <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-                    <div className="flex items-center gap-2 mb-1">
-                    <div className={`w-2 h-2 rounded-full ${formUmum.isOnline ? "bg-emerald-400" : "bg-gray-400"}`} />
-                    <span className="text-xs font-semibold text-gray-600">{formUmum.isOnline ? "Platform Online" : "Maintenance"}</span>
-                    </div>
-                    <p className="text-[11px] text-gray-400">{formUmum.nama} · v1.0</p>
-                </div>
-                </div>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Settings size={11} /> Konfigurasi Platform
+                </p>
             </div>
 
-            {/* ===== RIGHT CONTENT ===== */}
+            {/* Tab pills */}
+            <div className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2">
+                {(Object.keys(TAB_CONFIG) as Tab[]).map((tab) => {
+                const { icon: Icon, label, desc } = TAB_CONFIG[tab]
+                const isActive = activeTab === tab
+                return (
+                    <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border transition-all group ${
+                        isActive
+                        ? "bg-[#6EB8BB]/10 border-[#6EB8BB]/30 text-[#6EB8BB]"
+                        : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200"
+                    }`}
+                    >
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isActive ? "bg-[#6EB8BB]/20" : "bg-white group-hover:bg-gray-50"
+                    }`}>
+                        <Icon size={14} className={isActive ? "text-[#6EB8BB]" : "text-gray-500"} />
+                    </div>
+                    <div className="text-left min-w-0">
+                        <p className={`text-sm font-semibold leading-tight ${isActive ? "text-[#6EB8BB]" : "text-gray-700"}`}>{label}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5 hidden sm:block">{desc}</p>
+                    </div>
+                    </button>
+                )
+                })}
+            </div>
+            </div>
+
+            {/* ===== CONTENT AREA ===== */}
+            <div>
             <div className="flex-1 min-w-0">
 
                 {/* ===== TAB: UMUM ===== */}
