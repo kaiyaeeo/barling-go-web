@@ -28,17 +28,16 @@
         .eq("is_active", true),
     ])
 
-    const shopName = profile?.umkm_name ?? profile?.full_name ?? "Toko Saya"
-    const initials = shopName.slice(0, 2).toUpperCase()
-    const logoUrl  = profile?.umkm_logo
+    const shopName      = profile?.umkm_name ?? profile?.full_name ?? "Toko Saya"
+    const initials      = shopName.slice(0, 2).toUpperCase()
+    const logoUrl       = profile?.umkm_logo
         ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${profile.umkm_logo}`
         : null
-
-    const avgRating = products && products.length
+    const avgRating     = products && products.length
         ? (products.reduce((sum: number, p: any) => sum + (Number(p.rating) || 0), 0) /
         (products.filter((p: any) => p.rating > 0).length || 1))
         : 0
-    const totalSold = products?.reduce((sum: number, p: any) => sum + (p.total_sold || 0), 0) ?? 0
+    const totalSold     = products?.reduce((sum: number, p: any) => sum + (p.total_sold || 0), 0) ?? 0
     const featuredCount = products?.filter((p: any) => p.is_featured).length ?? 0
 
     function getPrice(p: any) {
@@ -47,13 +46,12 @@
     }
 
     const PLACEHOLDER = "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400&q=70"
-    const COVER_URL   = "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=1400&q=80"
     const isPremium   = (profile?.promo_package || "REGULER").toUpperCase() !== "REGULER"
 
     const TABS = ["Semua Produk", "Terlaris", "Promo", "Terbaru", "Unggulan"]
 
     return (
-        <main className="min-h-screen bg-gray-50/60">
+        <main className="min-h-screen bg-[#F5F5F5]">
 
         {/* ===== STICKY TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
@@ -66,7 +64,6 @@
                 <span className="text-gray-700 font-semibold">Etalase Toko</span>
                 </div>
                 <div className="flex items-center gap-2">
-                {/* Pratinjau banner */}
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#6EB8BB]/10 border border-[#6EB8BB]/20 text-[#5AA4A7] rounded-xl text-xs font-semibold">
                     <Eye size={13} />
                     <span>Mode Pratinjau — tampilan ini sama seperti yang dilihat pengunjung</span>
@@ -85,10 +82,7 @@
                 <Link href="/admin/pengaturan" className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">
                     <Settings size={16} />
                 </Link>
-                <Link
-                    href="/bantuan"
-                    className="px-4 py-2 bg-[#6EB8BB] text-white text-xs font-bold rounded-xl hover:bg-[#5AA4A7] active:scale-95 transition-all"
-                >
+                <Link href="/bantuan" className="px-4 py-2 bg-[#6EB8BB] text-white text-xs font-bold rounded-xl hover:bg-[#5AA4A7] active:scale-95 transition-all">
                     Bantuan
                 </Link>
                 </div>
@@ -96,41 +90,13 @@
             </div>
         </div>
 
-        {/* ===== STORE HERO ===== */}
+        {/* ===== STORE IDENTITY (no cover photo) ===== */}
         <div className="bg-white border-b border-gray-100">
-
-            {/* Cover */}
-            <div className="relative h-44 sm:h-64 overflow-hidden">
-            <img src={COVER_URL} alt="cover" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-black/5" />
-
-            {/* Premium badge */}
-            {isPremium && (
-                <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-gray-900 text-[11px] font-black uppercase tracking-wider rounded-full shadow-lg">
-                <Crown size={11} className="fill-gray-900" /> Mitra {profile?.promo_package}
-                </span>
-            )}
-
-            {/* Cover actions */}
-            <div className="absolute bottom-4 right-4 flex gap-2">
-                <button className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-all">
-                <Share2 size={12} /> Bagikan
-                </button>
-                <Link
-                href="/admin/pengaturan/toko"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-semibold rounded-xl hover:bg-white/30 transition-all"
-                >
-                <Settings size={12} /> Edit Profil
-                </Link>
-            </div>
-            </div>
-
-            {/* Identity + Stats */}
-            <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-0">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-14 sm:-mt-16 relative z-10">
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-5">
 
                 {/* Logo */}
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#6EB8BB] flex items-center justify-center text-white font-black text-3xl border-4 border-white shadow-xl shrink-0 overflow-hidden">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#6EB8BB] flex items-center justify-center text-white font-black text-2xl border border-gray-100 shadow-md shrink-0 overflow-hidden">
                 {logoUrl
                     ? <img src={logoUrl} alt={shopName} className="w-full h-full object-cover" />
                     : <span>{initials}</span>
@@ -138,52 +104,69 @@
                 </div>
 
                 {/* Name + meta */}
-                <div className="flex-1 sm:pb-2 mt-2 sm:mt-0 min-w-0">
+                <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-xl sm:text-2xl font-black text-gray-900">{shopName}</h1>
-                    <BadgeCheck size={20} className="text-[#6EB8BB] shrink-0" />
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full">
-                    Aktif
+                    <BadgeCheck size={19} className="text-[#6EB8BB] shrink-0" />
+                    {isPremium && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-gray-900 text-[10px] font-black rounded-full">
+                        <Crown size={10} className="fill-gray-900" /> {profile?.promo_package}
                     </span>
+                    )}
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full">Aktif</span>
                 </div>
                 {profile?.umkm_description && (
-                    <p className="text-sm text-gray-500 mt-1 max-w-lg line-clamp-2 leading-relaxed">
-                    {profile.umkm_description}
-                    </p>
+                    <p className="text-sm text-gray-500 mt-1 max-w-lg line-clamp-2 leading-relaxed">{profile.umkm_description}</p>
                 )}
-                <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#E6F7F8] text-[#6EB8BB] text-[11px] font-semibold rounded-full">
                     <Clock size={10} /> Buka 08:00 – 17:00
                     </span>
                     {profile?.city && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-500 text-[11px] font-semibold rounded-full border border-gray-100">
                         <MapPin size={10} /> {profile.city}
-                        {profile?.postal_code && <span className="text-gray-400">{profile.postal_code}</span>}
+                        {profile?.postal_code && <span className="text-gray-400 ml-0.5">{profile.postal_code}</span>}
                     </span>
                     )}
                 </div>
                 </div>
 
+                {/* Stats + actions */}
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                {/* Quick actions */}
+                <div className="flex items-center gap-2">
+                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 bg-white transition-all">
+                    <Share2 size={12} /> Bagikan
+                    </button>
+                    <Link
+                    href="/admin/pengaturan/toko"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 bg-white transition-all"
+                    >
+                    <Settings size={12} /> Edit Profil
+                    </Link>
+                </div>
+
                 {/* Stats */}
-                <div className="flex items-stretch bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden divide-x divide-gray-100 shrink-0 self-start sm:self-end mb-0 sm:mb-2">
-                {[
-                    { value: totalProducts ?? 0,                              label: "Produk Aktif", icon: Package,   color: "text-[#6EB8BB]"  },
-                    { value: totalSold,                                       label: "Terjual",      icon: ShoppingBag,color: "text-purple-500" },
-                    { value: avgRating > 0 ? avgRating.toFixed(1) : "—",     label: "Rating",       icon: Star,      color: "text-amber-500"  },
-                    { value: featuredCount,                                   label: "Unggulan",     icon: Crown,     color: "text-emerald-500"},
-                ].map(({ value, label, icon: Icon, color }) => (
-                    <div key={label} className="flex flex-col items-center justify-center px-5 py-3.5 gap-0.5">
-                    <div className="flex items-center gap-1">
-                        <Icon size={12} className={`${color} shrink-0`} />
-                        <p className="text-base font-black text-gray-900">{value}</p>
+                <div className="flex items-stretch bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden divide-x divide-gray-100">
+                    {[
+                    { value: totalProducts ?? 0,                          label: "Produk",   icon: Package,    color: "text-[#6EB8BB]"   },
+                    { value: totalSold,                                   label: "Terjual",  icon: ShoppingBag,color: "text-purple-500"  },
+                    { value: avgRating > 0 ? avgRating.toFixed(1) : "—", label: "Rating",   icon: Star,       color: "text-amber-500"   },
+                    { value: featuredCount,                               label: "Unggulan", icon: Crown,      color: "text-emerald-500" },
+                    ].map(({ value, label, icon: Icon, color }) => (
+                    <div key={label} className="flex flex-col items-center justify-center px-4 py-2.5 gap-0.5">
+                        <div className="flex items-center gap-1">
+                        <Icon size={11} className={`${color} shrink-0`} />
+                        <p className="text-sm font-black text-gray-900">{value}</p>
+                        </div>
+                        <p className="text-[9px] text-gray-400 font-medium">{label}</p>
                     </div>
-                    <p className="text-[10px] text-gray-400 font-medium">{label}</p>
-                    </div>
-                ))}
+                    ))}
+                </div>
                 </div>
             </div>
 
-            {/* ── Sticky-able tab bar ── */}
+            {/* Tab bar */}
             <div className="flex items-center justify-between border-t border-gray-100 mt-5">
                 <div className="flex items-center overflow-x-auto scrollbar-hide -mb-px">
                 {TABS.map((tab, i) => (
@@ -266,33 +249,22 @@
                     href={`/produk/${p.slug}`}
                     className="group block bg-white rounded-2xl border border-gray-100 hover:border-[#6EB8BB]/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
                     >
-                    {/* Image */}
                     <div className="relative aspect-square overflow-hidden bg-gray-100">
                         <img
                         src={img} alt={p.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-
-                        {/* Badges */}
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
                         {isBest && (
-                            <span className="text-[10px] font-bold text-white bg-[#FF6B35] px-2 py-0.5 rounded-full shadow-sm">
-                            🔥 Terlaris
-                            </span>
+                            <span className="text-[10px] font-bold text-white bg-[#FF6B35] px-2 py-0.5 rounded-full shadow-sm">🔥 Terlaris</span>
                         )}
                         {hasDiscount && (
-                            <span className="text-[10px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-full shadow-sm">
-                            -{discountPct}%
-                            </span>
+                            <span className="text-[10px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-full shadow-sm">-{discountPct}%</span>
                         )}
                         {p.is_featured && !isBest && (
-                            <span className="text-[10px] font-bold text-white bg-[#6EB8BB] px-2 py-0.5 rounded-full shadow-sm">
-                            ⭐ Unggulan
-                            </span>
+                            <span className="text-[10px] font-bold text-white bg-[#6EB8BB] px-2 py-0.5 rounded-full shadow-sm">⭐ Unggulan</span>
                         )}
                         </div>
-
-                        {/* Hover overlay */}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
                         <Link
                             href={`/admin/produk/${p.id}/edit`}
@@ -303,25 +275,21 @@
                         </div>
                     </div>
 
-                    {/* Card body */}
                     <div className="p-3">
                         <h3 className="text-sm font-semibold text-gray-800 mb-1.5 group-hover:text-[#6EB8BB] transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
                         {p.name}
                         </h3>
-
                         <div className="flex items-baseline gap-1.5 flex-wrap">
                         <p className="text-sm font-black text-[#6EB8BB]">{getPrice(p)}</p>
                         {hasDiscount && (
                             <p className="text-[10px] text-gray-400 line-through">Rp {Number(p.price).toLocaleString("id-ID")}</p>
                         )}
                         </div>
-
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
                         <div className="flex items-center gap-2 text-[10px] text-gray-400">
                             {p.rating > 0 && (
                             <span className="flex items-center gap-0.5 text-amber-500 font-bold">
-                                <Star size={9} className="fill-amber-400" />
-                                {Number(p.rating).toFixed(1)}
+                                <Star size={9} className="fill-amber-400" /> {Number(p.rating).toFixed(1)}
                             </span>
                             )}
                             {p.total_sold > 0 && (
@@ -340,7 +308,7 @@
                 })}
             </div>
             ) : (
-            <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-gray-100 text-gray-400">
+            <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-gray-100">
                 <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
                 <Package size={28} className="text-gray-300" />
                 </div>
@@ -367,21 +335,6 @@
             </div>
             )}
         </div>
-
-        {/* ===== FOOTER ===== */}
-        <footer className="border-t border-gray-100 bg-white mt-6">
-            <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center sm:items-center justify-between gap-3">
-            <div>
-                <p className="text-sm font-extrabold tracking-tight text-gray-800">BARLING-GO</p>
-                <p className="text-xs text-gray-400 mt-0.5">© 2026 Memberdayakan UMKM Barlingmascakep.</p>
-            </div>
-            <div className="flex gap-5 text-xs text-gray-400 flex-wrap justify-center">
-                {["Tentang Kami", "Pusat Bantuan", "Privasi", "Syarat & Ketentuan"].map((l) => (
-                <a key={l} href="#" className="hover:text-gray-600 transition-colors">{l}</a>
-                ))}
-            </div>
-            </div>
-        </footer>
         </main>
     )
     }
