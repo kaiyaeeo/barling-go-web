@@ -1,7 +1,7 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
     import Link from "next/link"
-    import { Search, Download, Printer, Filter, Package, Truck, CheckCircle, XCircle, Clock, ChevronRight, ShoppingBag } from "lucide-react"
+    import { Search, Download, Printer, Filter, Package, Truck, CheckCircle, XCircle, Clock, ShoppingBag, LayoutDashboard, ChevronRight, Bell, Settings } from "lucide-react"
     import OrderActionButton from "@/components/admin/pesanan/OrderActionButton"
 
     type SearchParams = { tab?: string; q?: string; page?: string; date?: string }
@@ -28,7 +28,6 @@
     const perPage = 8
     const from    = (page - 1) * perPage
 
-    // Summary counts
     const [
         { count: needProcess },
         { count: inShipping },
@@ -42,7 +41,6 @@
         supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "cancelled"),
     ])
 
-    // Tab counts
     const tabCounts: Record<string, number> = {}
     await Promise.all(
         Object.entries(TAB_FILTERS).map(async ([key, statuses]) => {
@@ -53,7 +51,6 @@
         })
     )
 
-    // Main query
     let query = supabase
         .from("orders")
         .select(`
@@ -72,13 +69,13 @@
     const totalPages = Math.ceil((count ?? 0) / perPage)
 
     const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
-        paid:       { label: "Pesanan Baru",  dot: "bg-blue-500",   badge: "bg-blue-50 text-blue-600 border-blue-100" },
-        processing: { label: "Diproses",      dot: "bg-purple-500", badge: "bg-purple-50 text-purple-600 border-purple-100" },
-        packing:    { label: "Dikemas",       dot: "bg-indigo-500", badge: "bg-indigo-50 text-indigo-600 border-indigo-100" },
-        shipped:    { label: "Dikirim",       dot: "bg-cyan-500",   badge: "bg-cyan-50 text-cyan-600 border-cyan-100" },
-        delivered:  { label: "Selesai",       dot: "bg-emerald-500",badge: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-        cancelled:  { label: "Dibatalkan",    dot: "bg-red-500",    badge: "bg-red-50 text-red-500 border-red-100" },
-        pending:    { label: "Pending",       dot: "bg-amber-500",  badge: "bg-amber-50 text-amber-600 border-amber-100" },
+        paid:       { label: "Pesanan Baru",  dot: "bg-blue-500",    badge: "bg-blue-50 text-blue-600 border-blue-100" },
+        processing: { label: "Diproses",      dot: "bg-purple-500",  badge: "bg-purple-50 text-purple-600 border-purple-100" },
+        packing:    { label: "Dikemas",       dot: "bg-indigo-500",  badge: "bg-indigo-50 text-indigo-600 border-indigo-100" },
+        shipped:    { label: "Dikirim",       dot: "bg-cyan-500",    badge: "bg-cyan-50 text-cyan-600 border-cyan-100" },
+        delivered:  { label: "Selesai",       dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+        cancelled:  { label: "Dibatalkan",    dot: "bg-red-500",     badge: "bg-red-50 text-red-500 border-red-100" },
+        pending:    { label: "Pending",       dot: "bg-amber-500",   badge: "bg-amber-50 text-amber-600 border-amber-100" },
     }
 
     const TABS = [
@@ -97,14 +94,41 @@
     }
 
     const summaryCards = [
-        { icon: Clock,        label: "Perlu Diproses",    value: needProcess ?? 0, color: "text-amber-600",  bg: "bg-amber-50",   iconColor: "text-amber-500" },
-        { icon: Truck,        label: "Dalam Pengiriman",  value: inShipping  ?? 0, color: "text-cyan-600",   bg: "bg-cyan-50",    iconColor: "text-cyan-500" },
-        { icon: CheckCircle,  label: "Selesai Hari Ini",  value: doneToday   ?? 0, color: "text-emerald-600",bg: "bg-emerald-50", iconColor: "text-emerald-500" },
-        { icon: XCircle,      label: "Dibatalkan",        value: cancelled   ?? 0, color: "text-red-500",    bg: "bg-red-50",     iconColor: "text-red-400" },
+        { icon: Clock,       label: "Perlu Diproses",   value: needProcess ?? 0, color: "text-amber-600",   bg: "bg-amber-50",   iconColor: "text-amber-500"   },
+        { icon: Truck,       label: "Dalam Pengiriman", value: inShipping  ?? 0, color: "text-cyan-600",    bg: "bg-cyan-50",    iconColor: "text-cyan-500"    },
+        { icon: CheckCircle, label: "Selesai Hari Ini", value: doneToday   ?? 0, color: "text-emerald-600", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+        { icon: XCircle,     label: "Dibatalkan",       value: cancelled   ?? 0, color: "text-red-500",     bg: "bg-red-50",     iconColor: "text-red-400"     },
     ]
 
     return (
         <main className="min-h-screen bg-[#F5F5F5] pb-20">
+
+        {/* ── Topbar ── */}
+        <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center justify-between h-14">
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <LayoutDashboard size={13} />
+                <Link href="/admin/dashboard" className="hover:text-gray-600 transition-colors">Dashboard</Link>
+                <ChevronRight size={13} />
+                <span className="text-gray-700 font-semibold">Pesanan Masuk</span>
+                </div>
+                <div className="flex items-center gap-2">
+                <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">
+                    <Bell size={16} />
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-400 rounded-full" />
+                </button>
+                <Link href="/admin/pengaturan" className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">
+                    <Settings size={16} />
+                </Link>
+                <Link href="/bantuan" className="px-4 py-2 bg-[#6EB8BB] text-white text-xs font-bold rounded-xl hover:bg-[#5AA4A7] active:scale-95 transition-all">
+                    Bantuan
+                </Link>
+                </div>
+            </div>
+            </div>
+        </div>
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-5">
 
             {/* ── Header ── */}
@@ -226,13 +250,11 @@
                         key={order.id}
                         className="grid grid-cols-1 lg:grid-cols-[140px_100px_140px_1fr_120px_120px_110px] items-center px-5 py-4 hover:bg-gray-50/70 transition-colors gap-2 lg:gap-0"
                     >
-                        {/* No. Pesanan */}
                         <div>
                         <p className="text-xs text-gray-400 font-medium lg:hidden">No. Pesanan</p>
                         <p className="text-sm font-bold text-gray-900 font-mono">{order.order_number}</p>
                         </div>
 
-                        {/* Tanggal */}
                         <div>
                         <p className="text-xs text-gray-400 font-medium lg:hidden">Tanggal</p>
                         <p className="text-xs text-gray-500 leading-tight">
@@ -243,7 +265,6 @@
                         </p>
                         </div>
 
-                        {/* Pembeli */}
                         <div className="min-w-0 pr-2">
                         <div className="flex items-center gap-2">
                             <div className="w-7 h-7 rounded-full bg-[#E6F7F8] flex items-center justify-center shrink-0">
@@ -255,16 +276,11 @@
                         </div>
                         </div>
 
-                        {/* Produk */}
                         <div className="min-w-0 pr-2">
                         {item ? (
                             <div className="flex items-center gap-2">
                             {item.product_image ? (
-                                <img
-                                src={item.product_image}
-                                alt={item.product_name}
-                                className="w-8 h-8 rounded-lg object-cover border border-gray-100 shrink-0"
-                                />
+                                <img src={item.product_image} alt={item.product_name} className="w-8 h-8 rounded-lg object-cover border border-gray-100 shrink-0" />
                             ) : (
                                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                                 <Package size={12} className="text-gray-400" />
@@ -287,15 +303,11 @@
                         )}
                         </div>
 
-                        {/* Total */}
                         <div>
                         <p className="text-xs text-gray-400 lg:hidden">Total</p>
-                        <p className="text-sm font-black text-gray-900">
-                            Rp {order.total_amount.toLocaleString("id-ID")}
-                        </p>
+                        <p className="text-sm font-black text-gray-900">Rp {order.total_amount.toLocaleString("id-ID")}</p>
                         </div>
 
-                        {/* Status badge */}
                         <div>
                         <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border ${cfg.badge}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
@@ -303,7 +315,6 @@
                         </span>
                         </div>
 
-                        {/* Aksi */}
                         <div className="flex justify-start lg:justify-end">
                         <OrderActionButton orderId={order.id} status={order.status} />
                         </div>
@@ -326,16 +337,12 @@
                 <div className="flex items-center gap-1">
                     {page > 1 && (
                     <Link href={buildUrl({ page: String(page - 1) })}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-white hover:border-gray-300 transition-all">
-                        ‹
-                    </Link>
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-white hover:border-gray-300 transition-all">‹</Link>
                     )}
                     {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((pg) => (
                     <Link key={pg} href={buildUrl({ page: String(pg) })}
                         className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-all ${
-                        pg === page
-                            ? "bg-[#6EB8BB] text-white shadow-sm"
-                            : "border border-gray-200 text-gray-500 hover:bg-white hover:border-gray-300"
+                        pg === page ? "bg-[#6EB8BB] text-white shadow-sm" : "border border-gray-200 text-gray-500 hover:bg-white hover:border-gray-300"
                         }`}>
                         {pg}
                     </Link>
@@ -349,9 +356,7 @@
                     )}
                     {page < totalPages && (
                     <Link href={buildUrl({ page: String(page + 1) })}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-white hover:border-gray-300 transition-all">
-                        ›
-                    </Link>
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-white hover:border-gray-300 transition-all">›</Link>
                     )}
                 </div>
                 )}
