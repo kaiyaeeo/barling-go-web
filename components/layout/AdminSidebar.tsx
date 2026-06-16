@@ -4,10 +4,11 @@
     import { usePathname, useRouter } from "next/navigation"
     import {
     LayoutDashboard, Store, Package, Plus,
-    ShoppingBag, BarChart2, User, Settings, LogOut, Bell
+    ShoppingBag, BarChart2, User, Settings, LogOut
     } from "lucide-react"
     import { useState, useEffect } from "react"
     import { createClient } from "@/lib/supabase/client"
+    import NotificationBell from "@/components/admin/NotificationBell" // <-- Import komponen di sini
 
     const MENU_ITEMS = [
     { href: "/admin/dashboard",  label: "Dashboard",      icon: LayoutDashboard },
@@ -35,7 +36,7 @@
         supabase.from("profiles").select("full_name, umkm_name, umkm_logo").eq("id", user.id).single()
             .then(({ data }) => setProfile(data))
         })
-    }, [])
+    }, [supabase])
 
     async function handleLogout() {
         await supabase.auth.signOut()
@@ -54,9 +55,11 @@
             <Link href="/admin/dashboard" className="flex items-center">
             <span className="text-base font-black text-white tracking-tight drop-shadow-sm">BARLING-GO</span>
             </Link>
-            <button className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all relative">
-            <Bell size={16} />
-            </button>
+            
+            {/* <-- Lonceng Realtime dipasang di sini --> */}
+            <div className="brightness-200 saturate-0 scale-90">
+            <NotificationBell />
+            </div>
         </div>
 
         {/* MENU section */}

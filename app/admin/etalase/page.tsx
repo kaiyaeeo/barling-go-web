@@ -1,11 +1,12 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
     import {
-    Search, Filter, Bell, Star, MapPin, Package, ShoppingBag,
+    Search, Filter, Star, MapPin, Package, ShoppingBag,
     Clock, BadgeCheck, ChevronDown, TrendingUp, Share2, Settings,
     ExternalLink, Eye, Crown, LayoutDashboard, ChevronRight, Plus
     } from "lucide-react"
     import Link from "next/link"
+    import NotificationBell from "@/components/admin/NotificationBell"
 
     export default async function AdminEtalasePage() {
     const supabase = await createClient()
@@ -75,10 +76,10 @@
                 >
                     <ExternalLink size={12} /> Halaman Publik
                 </Link>
-                <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">
-                    <Bell size={16} />
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-400 rounded-full" />
-                </button>
+                
+                {/* Komponen Lonceng Notifikasi Realtime dipasang di sini */}
+                <NotificationBell />
+
                 <Link href="/admin/pengaturan" className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">
                     <Settings size={16} />
                 </Link>
@@ -149,10 +150,10 @@
                 {/* Stats */}
                 <div className="flex items-stretch bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden divide-x divide-gray-100">
                     {[
-                    { value: totalProducts ?? 0,                          label: "Produk",   icon: Package,    color: "text-[#6EB8BB]"   },
-                    { value: totalSold,                                   label: "Terjual",  icon: ShoppingBag,color: "text-purple-500"  },
-                    { value: avgRating > 0 ? avgRating.toFixed(1) : "—", label: "Rating",   icon: Star,       color: "text-amber-500"   },
-                    { value: featuredCount,                               label: "Unggulan", icon: Crown,      color: "text-emerald-500" },
+                    { value: totalProducts ?? 0,                          label: "Produk",   icon: Package,     color: "text-[#6EB8BB]"   },
+                    { value: totalSold,                                   label: "Terjual",  icon: ShoppingBag, color: "text-purple-500"  },
+                    { value: avgRating > 0 ? avgRating.toFixed(1) : "—",  label: "Rating",   icon: Star,        color: "text-amber-500"   },
+                    { value: featuredCount,                               label: "Unggulan", icon: Crown,       color: "text-emerald-500" },
                     ].map(({ value, label, icon: Icon, color }) => (
                     <div key={label} className="flex flex-col items-center justify-center px-4 py-2.5 gap-0.5">
                         <div className="flex items-center gap-1">
@@ -243,68 +244,74 @@
                     ? Math.round(((p.price - p.discount_price) / p.price) * 100)
                     : 0
 
-                return (
-                    <Link
+                    return (
+                    <div
                     key={p.id}
-                    href={`/produk/${p.slug}`}
-                    className="group block bg-white rounded-2xl border border-gray-100 hover:border-[#6EB8BB]/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+                    className="group relative bg-white rounded-2xl border border-gray-100 hover:border-[#6EB8BB]/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
                     >
-                    <div className="relative aspect-square overflow-hidden bg-gray-100">
+                    {/* 1. Tautan Utama (Gambar & Info Produk) */}
+                    <Link href={`/produk/${p.slug}`} className="block">
+                        <div className="relative aspect-square overflow-hidden bg-gray-100">
                         <img
-                        src={img} alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            src={img} alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        {isBest && (
+                            {isBest && (
                             <span className="text-[10px] font-bold text-white bg-[#FF6B35] px-2 py-0.5 rounded-full shadow-sm">🔥 Terlaris</span>
-                        )}
-                        {hasDiscount && (
+                            )}
+                            {hasDiscount && (
                             <span className="text-[10px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-full shadow-sm">-{discountPct}%</span>
-                        )}
-                        {p.is_featured && !isBest && (
+                            )}
+                            {p.is_featured && !isBest && (
                             <span className="text-[10px] font-bold text-white bg-[#6EB8BB] px-2 py-0.5 rounded-full shadow-sm">⭐ Unggulan</span>
-                        )}
+                            )}
                         </div>
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                        <Link
-                            href={`/admin/produk/${p.id}/edit`}
-                            className="px-4 py-1.5 bg-white text-gray-800 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-md"
-                        >
-                            ✏️ Edit Produk
-                        </Link>
                         </div>
-                    </div>
 
-                    <div className="p-3">
+                        <div className="p-3">
                         <h3 className="text-sm font-semibold text-gray-800 mb-1.5 group-hover:text-[#6EB8BB] transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
-                        {p.name}
+                            {p.name}
                         </h3>
                         <div className="flex items-baseline gap-1.5 flex-wrap">
-                        <p className="text-sm font-black text-[#6EB8BB]">{getPrice(p)}</p>
-                        {hasDiscount && (
+                            <p className="text-sm font-black text-[#6EB8BB]">{getPrice(p)}</p>
+                            {hasDiscount && (
                             <p className="text-[10px] text-gray-400 line-through">Rp {Number(p.price).toLocaleString("id-ID")}</p>
-                        )}
+                            )}
                         </div>
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
-                        <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400">
                             {p.rating > 0 && (
-                            <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                                <span className="flex items-center gap-0.5 text-amber-500 font-bold">
                                 <Star size={9} className="fill-amber-400" /> {Number(p.rating).toFixed(1)}
-                            </span>
+                                </span>
                             )}
                             {p.total_sold > 0 && (
-                            <span className="flex items-center gap-0.5">
+                                <span className="flex items-center gap-0.5">
                                 <ShoppingBag size={9} /> {p.total_sold}
-                            </span>
+                                </span>
                             )}
-                        </div>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                            </div>
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                             Aktif
-                        </span>
+                            </span>
                         </div>
-                    </div>
+                        </div>
                     </Link>
+
+                    {/* 2. Tombol Edit (Tautan Terpisah yang muncul saat hover) */}
+                    {/* pointer-events-none agar tidak menghalangi hover kartu, tapi pointer-events-auto di tombolnya */}
+                    <div className="absolute inset-x-0 top-0 aspect-square bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3 pointer-events-none">
+                        <Link
+                        href={`/admin/produk/${p.id}/edit`}
+                        className="px-4 py-1.5 bg-white text-gray-800 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-md pointer-events-auto"
+                        >
+                        ✏️ Edit Produk
+                        </Link>
+                    </div>
+                    </div>
                 )
+
                 })}
             </div>
             ) : (

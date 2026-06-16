@@ -77,7 +77,7 @@
     return (
         <div className="min-h-screen flex">
         {/* Left branding panel */}
-        <div className={`hidden lg:flex lg:w-5/12 flex-col justify-between p-12 transition-colors duration-300 ${isSeller ? "bg-[#1a3a2a]" : "bg-[#6EB8BB]"}`}>
+        <div className={`hidden lg:flex lg:w-5/12 flex-col justify-between p-12 transition-colors duration-300 ${isSeller ? "bg-[#9FCCCE]" : "bg-[#6EB8BB]"}`}>
             <Link href="/" className="flex items-center gap-1">
             <span className="text-2xl font-black text-white tracking-tight">BARLING</span>
             <span className="text-2xl font-black text-green-300 tracking-tight">-GO</span>
@@ -141,7 +141,7 @@
                 </div>
                 </div>
 
-                <button type="submit" disabled={loading} className={`w-full py-3 font-bold rounded-xl text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-60 ${isSeller ? "bg-[#1a3a2a] hover:bg-[#0f2619]" : "bg-[#6EB8BB] hover:bg-[#5AA4A7]"}`}>
+                <button type="submit" disabled={loading} className={`w-full py-3 font-bold rounded-xl text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-60 ${isSeller ? "bg-[#9FCCCE] hover:bg-[#8AB8BA]" : "bg-[#6EB8BB] hover:bg-[#5AA4A7]"}`}>
                 {loading && <Loader2 size={16} className="animate-spin" />}
                 {loading ? "Memproses..." : isSeller ? "Masuk sebagai Seller" : "Masuk"}
                 </button>

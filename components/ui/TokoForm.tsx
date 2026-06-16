@@ -6,7 +6,7 @@
     import {
     Loader2, Upload, Check, MapPin, Building, Megaphone, Crown,
     ArrowRight, User, ShieldCheck, Store, Star, Package, Eye,
-    BadgeCheck, Phone, Globe, Sparkles
+    BadgeCheck, Phone, Globe, Sparkles, X, Camera, CheckCircle2
     } from "lucide-react"
     import Link from "next/link"
 
@@ -24,13 +24,13 @@
     const logoRef = useRef<HTMLInputElement>(null)
 
     const [form, setForm] = useState({
-        full_name: initialData.full_name ?? "",
-        phone: initialData.phone ?? "",
-        umkm_name: initialData.umkm_name ?? "",
+        full_name:        initialData.full_name ?? "",
+        phone:            initialData.phone ?? "",
+        umkm_name:        initialData.umkm_name ?? "",
         umkm_description: initialData.umkm_description ?? "",
-        address: initialData.address ?? "",
-        city: initialData.city ?? "",
-        postal_code: initialData.postal_code ?? "",
+        address:          initialData.address ?? "",
+        city:             initialData.city ?? "",
+        postal_code:      initialData.postal_code ?? "",
     })
 
     const [logoUrl, setLogoUrl] = useState<string | null>(
@@ -38,11 +38,11 @@
         ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${initialData.umkm_logo}`
         : null
     )
-    const [logoPath, setLogoPath] = useState(initialData.umkm_logo ?? "")
+    const [logoPath, setLogoPath]   = useState(initialData.umkm_logo ?? "")
     const [uploading, setUploading] = useState(false)
-    const [saving, setSaving] = useState(false)
-    const [saved, setSaved] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [saving, setSaving]       = useState(false)
+    const [saved, setSaved]         = useState(false)
+    const [error, setError]         = useState<string | null>(null)
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         setForm((p) => ({ ...p, [e.target.name]: e.target.value }))
@@ -52,21 +52,16 @@
         const file = e.target.files?.[0]
         if (!file) return
         setUploading(true)
-        const ext = file.name.split(".").pop()
+        const ext  = file.name.split(".").pop()
         const path = `umkm-logos/${initialData.id}-${Date.now()}.${ext}`
-
         const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true })
-        if (!error) {
-        setLogoPath(path)
-        setLogoUrl(URL.createObjectURL(file))
-        }
+        if (!error) { setLogoPath(path); setLogoUrl(URL.createObjectURL(file)) }
         setUploading(false)
     }
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         setSaving(true); setError(null)
-
         const { error } = await supabase
         .from("profiles")
         .update({
@@ -77,7 +72,6 @@
             updated_at: new Date().toISOString(),
         })
         .eq("id", initialData.id)
-
         setSaving(false)
         if (error) { setError(error.message); return }
         setSaved(true)
@@ -85,204 +79,215 @@
         router.refresh()
     }
 
-    // Profile completeness score — encodes how "store-ready" this profile is
-    const fields = [form.umkm_name, form.umkm_description, form.address, form.city, form.postal_code, form.full_name, form.phone, logoPath]
-    const filled = fields.filter((f) => f && f.toString().trim().length > 0).length
+    const fields       = [form.umkm_name, form.umkm_description, form.address, form.city, form.postal_code, form.full_name, form.phone, logoPath]
+    const filled       = fields.filter((f) => f && f.toString().trim().length > 0).length
     const completeness = Math.round((filled / fields.length) * 100)
 
     const packageLabel = initialData.promo_package || "REGULER"
-    const isPremium = packageLabel.toUpperCase() !== "REGULER"
+    const isPremium    = packageLabel.toUpperCase() !== "REGULER"
+
+    const completenessColor =
+        completeness >= 80 ? "from-emerald-400 to-[#6EB8BB]" :
+        completeness >= 50 ? "from-amber-400 to-[#6EB8BB]" :
+        "from-red-400 to-amber-400"
+
+    const completenessLabel =
+        completeness >= 80 ? "Profil Lengkap" :
+        completeness >= 50 ? "Hampir Lengkap" : "Perlu Dilengkapi"
+
+    const INPUT = "w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/25 focus:border-[#6EB8BB] bg-white placeholder:text-gray-300 transition-all"
+    const LABEL = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5"
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in duration-300">
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+        {/* ── Error banner ── */}
         {error && (
-            <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl">{error}</div>
+            <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl">
+            <X size={15} className="shrink-0 mt-0.5" />
+            <span>{error}</span>
+            <button type="button" onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">
+                <X size={13} />
+            </button>
+            </div>
         )}
 
-        {/* ===== HERO / STORE HEADER CARD ===== */}
-        <div className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-            <div className="h-24 md:h-28 bg-gradient-to-r from-[#9FCCCE] via-[#6EB8BB] to-[#9FCCCE]" />
-            <div className="px-6 md:px-8 pb-6 md:pb-8 -mt-12 md:-mt-14 flex flex-col md:flex-row md:items-end gap-5 md:gap-6">
-            {/* Logo */}
+        {/* ── Store hero card ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            {/* Teal banner */}
+            <div className="h-24 bg-gradient-to-r from-[#9FCCCE] via-[#6EB8BB] to-[#9FCCCE] relative">
+            {isPremium && (
+                <span className="absolute top-3 right-4 inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-400 to-yellow-300 text-gray-900 text-[10px] font-black uppercase tracking-wider rounded-full shadow-md">
+                <Crown size={10} className="fill-gray-900" /> Mitra {packageLabel}
+                </span>
+            )}
+            </div>
+
+            <div className="px-6 pb-5 -mt-12 flex flex-col sm:flex-row sm:items-end gap-5">
+            {/* Logo upload */}
             <div className="relative shrink-0">
-                <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-white overflow-hidden bg-gray-50 flex items-center justify-center shadow-md">
-                {logoUrl ? (
-                    <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
-                ) : (
-                    <span className="text-4xl font-black text-gray-300">{form.umkm_name?.[0]?.toUpperCase() ?? "T"}</span>
-                )}
+                <div className="w-24 h-24 rounded-2xl border-4 border-white overflow-hidden bg-gray-100 flex items-center justify-center shadow-xl">
+                {logoUrl
+                    ? <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
+                    : <span className="text-4xl font-black text-gray-300">{form.umkm_name?.[0]?.toUpperCase() ?? "T"}</span>
+                }
                 </div>
                 <button
                 type="button"
                 onClick={() => logoRef.current?.click()}
                 disabled={uploading}
-                className="absolute -bottom-2 -right-2 w-9 h-9 rounded-full bg-[#6EB8BB] text-white flex items-center justify-center shadow-md hover:bg-[#5AA4A7] hover:scale-105 active:scale-95 transition-all"
-                title="Ganti logo toko"
+                className="absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-full bg-[#6EB8BB] text-white flex items-center justify-center shadow-md hover:bg-[#5AA4A7] active:scale-95 transition-all"
+                title="Ganti logo"
                 >
-                {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
+                {uploading ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
                 </button>
                 <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
             </div>
 
-            {/* Name + status */}
-            <div className="flex-1 min-w-0">
+            {/* Name + location */}
+            <div className="flex-1 min-w-0 pb-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 truncate">
-                    {form.umkm_name || "Nama Toko Belum Diisi"}
-                </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-50 text-[#6EB8BB] text-xs font-semibold border border-green-100">
-                    <BadgeCheck size={13} /> Mitra Aktif
+                <h2 className="text-2xl font-black text-gray-900 truncate">
+                    {form.umkm_name || <span className="text-gray-300 font-normal italic text-lg">Nama toko belum diisi</span>}
+                </h2>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold border border-emerald-100">
+                    <BadgeCheck size={11} /> Mitra Aktif
                 </span>
+                {!isPremium && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-50 text-gray-400 text-[10px] font-bold border border-gray-100">
+                    <Crown size={10} /> {packageLabel}
+                    </span>
+                )}
                 </div>
-                <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
-                <MapPin size={14} className="shrink-0" />
-                {form.city ? `${form.city}${form.postal_code ? `, ${form.postal_code}` : ""}` : "Lokasi belum diatur"}
+                {form.umkm_description && (
+                <p className="text-xs text-gray-400 mt-1 line-clamp-1 max-w-xl">{form.umkm_description}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <MapPin size={11} className="shrink-0" />
+                {form.city
+                    ? `${form.city}${form.postal_code ? `, ${form.postal_code}` : ""}`
+                    : "Lokasi belum diatur"}
                 </p>
             </div>
-
-            {/* Package badge */}
-            <div className="flex md:flex-col items-center md:items-end gap-2 shrink-0">
-                <span className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${
-                isPremium
-                    ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                    : "bg-gray-50 text-gray-500 border-gray-200"
-                }`}>
-                <Crown size={13} className={isPremium ? "text-yellow-500" : "text-gray-400"} />
-                Paket {packageLabel}
-                </span>
-            </div>
             </div>
 
-            {/* Quick stats strip */}
-            <div className="grid grid-cols-3 border-t border-gray-100 divide-x divide-gray-100">
-            <div className="px-4 md:px-6 py-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <Package size={16} />
+            {/* Stats strip */}
+            <div className="grid grid-cols-4 border-t border-gray-100 divide-x divide-gray-100">
+            {[
+                { icon: Package,      label: "Produk Aktif",      value: "—", bg: "bg-[#E6F7F8]", color: "text-[#6EB8BB]"   },
+                { icon: Eye,          label: "Dilihat Bulan Ini", value: "—", bg: "bg-purple-50",  color: "text-purple-500"  },
+                { icon: Star,         label: "Rating Toko",       value: "—", bg: "bg-amber-50",   color: "text-amber-500"   },
+                { icon: ShieldCheck,  label: "Kelengkapan",       value: `${completeness}%`, bg: completeness >= 80 ? "bg-emerald-50" : "bg-gray-50", color: completeness >= 80 ? "text-emerald-500" : "text-gray-400" },
+            ].map(({ icon: Icon, label, value, bg, color }) => (
+                <div key={label} className="px-4 py-3.5 flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
+                    <Icon size={14} className={color} />
                 </div>
                 <div>
-                <p className="text-xs text-gray-400 leading-none mb-1">Produk Aktif</p>
-                <p className="text-sm font-bold text-gray-900 leading-none">—</p>
+                    <p className="text-[10px] text-gray-400 font-medium leading-tight">{label}</p>
+                    <p className="text-sm font-bold text-gray-900">{value}</p>
                 </div>
-            </div>
-            <div className="px-4 md:px-6 py-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                <Eye size={16} />
                 </div>
-                <div>
-                <p className="text-xs text-gray-400 leading-none mb-1">Dilihat Bulan Ini</p>
-                <p className="text-sm font-bold text-gray-900 leading-none">—</p>
-                </div>
-            </div>
-            <div className="px-4 md:px-6 py-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-yellow-50 text-yellow-600 flex items-center justify-center shrink-0">
-                <Star size={16} />
-                </div>
-                <div>
-                <p className="text-xs text-gray-400 leading-none mb-1">Rating Toko</p>
-                <p className="text-sm font-bold text-gray-900 leading-none">—</p>
-                </div>
-            </div>
+            ))}
             </div>
         </div>
 
-        {/* ===== COMPLETENESS BAR ===== */}
-        <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center gap-4">
-            <div className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#6EB8BB]">
-                <ShieldCheck size={20} />
+        {/* ── Completeness bar ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 px-5 py-4 flex items-center gap-4">
+            <div className="w-9 h-9 rounded-xl bg-[#E6F7F8] flex items-center justify-center shrink-0">
+            <ShieldCheck size={17} className="text-[#6EB8BB]" />
             </div>
-            <div>
-                <p className="text-sm font-bold text-gray-900">Kelengkapan Profil</p>
-                <p className="text-xs text-gray-500">Profil lengkap meningkatkan kepercayaan pembeli</p>
+            <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1.5">
+                <p className="text-xs font-bold text-gray-700">Kelengkapan Profil</p>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                completeness >= 80 ? "bg-emerald-50 text-emerald-600" :
+                completeness >= 50 ? "bg-amber-50 text-amber-600" :
+                "bg-red-50 text-red-500"
+                }`}>
+                {completenessLabel}
+                </span>
             </div>
-            </div>
-            <div className="flex-1 flex items-center gap-3">
-            <div className="flex-1 h-2.5 rounded-full bg-gray-100 overflow-hidden">
+            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                 <div
-                className="h-full rounded-full bg-gradient-to-r from-[#6EB8BB] to-[#9FCCCE] transition-all duration-500"
+                className={`h-full rounded-full bg-gradient-to-r ${completenessColor} transition-all duration-500`}
                 style={{ width: `${completeness}%` }}
                 />
             </div>
-            <span className="text-sm font-bold text-gray-900 w-12 text-right">{completeness}%</span>
+            <p className="text-[10px] text-gray-400 mt-1">{filled} dari {fields.length} informasi telah diisi · {completeness}% lengkap</p>
             </div>
         </div>
 
-        {/* ===== 2 KOLOM UTAMA ===== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── 2-column main fields ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-            {/* KOLOM KIRI: Profil Dasar */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-            <div className="border-b border-gray-100 pb-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#6EB8BB]">
-                <Store size={20} />
+            {/* LEFT: Identitas UMKM */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-xl bg-[#E6F7F8] flex items-center justify-center shrink-0">
+                <Store size={15} className="text-[#6EB8BB]" />
                 </div>
                 <div>
-                <h2 className="text-lg font-bold text-gray-900">Profil Dasar UMKM</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Identitas utama toko Anda di platform BARLING-GO</p>
+                <p className="text-sm font-bold text-gray-900">Identitas UMKM</p>
+                <p className="text-[11px] text-gray-400">Tampil publik di halaman etalase toko</p>
                 </div>
             </div>
-
-            <div className="space-y-5">
+            <div className="p-5 space-y-4">
                 <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1.5">Nama Toko / UMKM</label>
+                <label className={LABEL}>Nama Toko / UMKM <span className="text-red-400 normal-case">*</span></label>
                 <input
                     name="umkm_name" value={form.umkm_name} onChange={handleChange} required
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all"
-                    placeholder="Contoh: Toko Kripik Bu Siti"
+                    className={INPUT} placeholder="Contoh: Toko Kripik Bu Siti"
                 />
                 </div>
                 <div>
                 <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-sm font-semibold text-gray-800">Deskripsi Singkat</label>
-                    <span className="text-xs text-gray-400">{form.umkm_description.length}/300</span>
+                    <label className={LABEL.replace("mb-1.5", "")}>Deskripsi Singkat</label>
+                    <span className={`text-[10px] font-semibold ${form.umkm_description.length > 270 ? "text-amber-500" : "text-gray-400"}`}>
+                    {form.umkm_description.length}/300
+                    </span>
                 </div>
                 <textarea
-                    name="umkm_description" value={form.umkm_description} onChange={handleChange} rows={5} maxLength={300}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all resize-none"
-                    placeholder="Ceritakan sejarah singkat, keunggulan, atau produk andalan toko Anda..."
+                    name="umkm_description" value={form.umkm_description} onChange={handleChange}
+                    rows={5} maxLength={300}
+                    className={INPUT + " resize-none"}
+                    placeholder="Ceritakan keunggulan, produk andalan, atau sejarah singkat toko Anda…"
                 />
-                <p className="text-xs text-gray-400 mt-1.5">Deskripsi ini akan tampil di halaman publik toko Anda.</p>
                 </div>
-            </div>
-
-            {/* Verification note */}
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-                <Globe size={18} className="text-blue-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-blue-700 leading-relaxed">
-                Informasi pada bagian ini akan ditampilkan secara publik di etalase toko Anda dan dapat dilihat oleh seluruh pengguna BARLING-GO.
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/60 border border-blue-100">
+                <Globe size={14} className="text-blue-400 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-blue-600 leading-relaxed">
+                    Informasi ini akan ditampilkan secara publik dan dapat dilihat seluruh pengguna BARLING-GO.
                 </p>
+                </div>
             </div>
             </div>
 
-            {/* KOLOM KANAN: Lokasi & Kontak */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6 flex flex-col">
-            <div className="border-b border-gray-100 pb-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <MapPin size={20} />
+            {/* RIGHT: Lokasi & Kontak */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                <MapPin size={15} className="text-blue-500" />
                 </div>
                 <div>
-                <h2 className="text-lg font-bold text-gray-900">Lokasi & Kontak</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Data penjemputan kurir dan kontak pelanggan</p>
+                <p className="text-sm font-bold text-gray-900">Lokasi & Kontak</p>
+                <p className="text-[11px] text-gray-400">Data penjemputan kurir & kontak pelanggan</p>
                 </div>
             </div>
-
-            <div className="space-y-5">
+            <div className="p-5 space-y-4 flex-1">
                 <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1.5">Alamat Lengkap Outlet / Produksi</label>
+                <label className={LABEL}>Alamat Lengkap</label>
                 <textarea
                     name="address" value={form.address} onChange={handleChange} rows={2}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all resize-none"
-                    placeholder="Jl. Raya Contoh No. 123, RT 01/RW 02..."
+                    className={INPUT + " resize-none"}
+                    placeholder="Jl. Raya Contoh No. 123, RT 01/RW 02…"
                 />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-1.5">Kota / Kabupaten</label>
-                    <select
-                    name="city" value={form.city} onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] bg-white transition-all"
-                    >
-                    <option value="">Pilih Kota...</option>
+                    <label className={LABEL}>Kota / Kabupaten</label>
+                    <select name="city" value={form.city} onChange={handleChange} className={INPUT}>
+                    <option value="">Pilih Kota…</option>
                     <option value="Purbalingga">Purbalingga</option>
                     <option value="Banyumas">Banyumas</option>
                     <option value="Banjarnegara">Banjarnegara</option>
@@ -290,37 +295,31 @@
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-1.5">Kode Pos</label>
-                    <input
-                    name="postal_code" value={form.postal_code} onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all"
-                    placeholder="53311"
-                    />
+                    <label className={LABEL}>Kode Pos</label>
+                    <input name="postal_code" value={form.postal_code} onChange={handleChange} className={INPUT} placeholder="53311" />
                 </div>
                 </div>
-            </div>
 
-            <div className="pt-5 border-t border-gray-100 mt-auto">
-                <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <User size={16} className="text-gray-400" /> Penanggung Jawab
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Nama Pemilik</label>
-                    <input
-                    name="full_name" value={form.full_name} onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all"
-                    />
+                {/* Divider penanggung jawab */}
+                <div className="border-t border-gray-100 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <User size={13} className="text-gray-400" />
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">Penanggung Jawab</p>
                 </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">WhatsApp Outlet</label>
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                    <label className={LABEL}>Nama Pemilik</label>
+                    <input name="full_name" value={form.full_name} onChange={handleChange} className={INPUT} placeholder="Nama lengkap" />
+                    </div>
+                    <div>
+                    <label className={LABEL}>WhatsApp Outlet</label>
                     <div className="relative">
-                    <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
+                        <Phone size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
                         name="phone" value={form.phone} onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] transition-all"
-                        placeholder="08..."
-                    />
+                        className={INPUT + " pl-9"} placeholder="08…"
+                        />
+                    </div>
                     </div>
                 </div>
                 </div>
@@ -328,60 +327,65 @@
             </div>
         </div>
 
-        {/* ===== TOMBOL SIMPAN ===== */}
-        <div className="flex justify-end pt-1">
+        {/* ── Save button ── */}
+        <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 px-5 py-4">
+            <p className="text-xs text-gray-400 hidden sm:block">
+            {saved
+                ? <span className="text-emerald-600 font-semibold flex items-center gap-1"><CheckCircle2 size={13} /> Perubahan berhasil disimpan</span>
+                : "Pastikan semua informasi sudah benar sebelum menyimpan"}
+            </p>
             <button
-            type="submit" disabled={saving || saved}
-            className={`px-10 py-3.5 font-bold rounded-2xl text-sm md:text-base flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-[0.98] ${
-                saved ? "bg-[#6EB8BB] text-white" : "bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white disabled:opacity-60"
+            type="submit"
+            disabled={saving || saved}
+            className={`ml-auto inline-flex items-center gap-2 px-7 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 disabled:opacity-60 ${
+                saved
+                ? "bg-emerald-500 text-white shadow-emerald-200"
+                : "bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white shadow-[#6EB8BB]/30"
             }`}
             >
-            {saving && <Loader2 size={18} className="animate-spin" />} {saved && <Check size={18} />}
-            {saved ? "Data Tersimpan!" : "Simpan Profil Toko"}
+            {saving && <Loader2 size={15} className="animate-spin" />}
+            {saved   && <Check size={15} />}
+            {saved ? "Tersimpan!" : saving ? "Menyimpan…" : "Simpan Profil Toko"}
             </button>
         </div>
 
-        {/* ===== FULL-WIDTH BAWAH: Mitra Promosi / Langganan ===== */}
-        <div className="relative overflow-hidden rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 via-[#11301d] to-[#9FCCCE] text-white p-8 md:p-10">
+        {/* ── Promo package CTA ── */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-[#11301d] to-[#1a4a3a] text-white p-7">
             <div className="absolute right-0 top-0 opacity-5 translate-x-1/4 -translate-y-1/4 pointer-events-none">
-            <Megaphone size={300} />
+            <Megaphone size={240} />
             </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="w-full md:w-2/3">
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <div className="p-2 bg-yellow-400/20 rounded-lg">
-                    <Crown size={24} className="text-yellow-400" />
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex-1">
+                <div className="flex items-center gap-2.5 mb-3 flex-wrap">
+                <div className="p-1.5 bg-yellow-400/20 rounded-lg">
+                    <Crown size={18} className="text-yellow-400" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold text-white">Program Mitra Promosi</h2>
-                <span className="px-3 py-1 bg-white/10 border border-white/20 text-yellow-400 text-xs font-black uppercase tracking-wider rounded-full backdrop-blur-sm shadow-sm">
+                <h3 className="text-base font-bold text-white">Program Mitra Promosi</h3>
+                <span className="px-2.5 py-0.5 bg-white/10 border border-white/20 text-yellow-400 text-[10px] font-black uppercase tracking-wider rounded-full">
                     {packageLabel}
                 </span>
                 </div>
-                <p className="text-sm md:text-base text-gray-300 leading-relaxed max-w-2xl">
-                Tingkatkan omzet toko Anda dengan eksposur maksimal! Gabung dalam program kemitraan kami agar produk UMKM Anda tampil di <strong className="text-white">Halaman Utama</strong> dan menjadi rekomendasi teratas bagi wisatawan Barlingmascakep.
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xl">
+                Tingkatkan omzet dengan eksposur maksimal! Produk UMKM Anda tampil di{" "}
+                <strong className="text-white">Halaman Utama</strong> dan jadi rekomendasi teratas wisatawan Barlingmascakep.
                 </p>
-
                 {!isPremium && (
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                     {["Tampil di Halaman Utama", "Label Toko Pilihan", "Prioritas Pencarian"].map((perk) => (
-                    <span key={perk} className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-200 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-                        <Sparkles size={12} className="text-yellow-400" />
-                        {perk}
+                    <span key={perk} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-200 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                        <Sparkles size={11} className="text-yellow-400" /> {perk}
                     </span>
                     ))}
                 </div>
                 )}
             </div>
-
-            <div className="w-full md:w-auto shrink-0">
-                <Link
+            <Link
                 href="/admin/langganan"
-                className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-8 py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)] hover:shadow-[0_0_30px_rgba(250,204,21,0.5)] hover:scale-[1.02] active:scale-[0.98] w-full md:w-auto text-sm md:text-base"
-                >
-                {isPremium ? "Kelola Paket" : "Upgrade Paket Sekarang"} <ArrowRight size={20} />
-                </Link>
-            </div>
+                className="shrink-0 inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:shadow-[0_0_30px_rgba(250,204,21,0.4)] hover:scale-[1.02] active:scale-[0.97] text-sm"
+            >
+                {isPremium ? "Kelola Paket" : "Upgrade Sekarang"} <ArrowRight size={17} />
+            </Link>
             </div>
         </div>
         </form>
