@@ -100,7 +100,7 @@
                 <LayoutDashboard size={13} />
                 <button onClick={() => router.push("/admin/dashboard")} className="hover:text-gray-600 transition-colors">Dashboard</button>
                 <ChevronRight size={13} />
-                <span className="text-gray-700 font-semibold">Konfigurasi Toko</span>
+                <span className="text-gray-700 font-semibold">Pengaturan</span>
                 </div>
                 <div className="flex items-center gap-2">
                 <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#E6F7F8] border border-[#6EB8BB]/20 text-[#5AA4A7] rounded-xl text-xs font-semibold">
@@ -119,7 +119,7 @@
             <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
                 <p className="text-xs font-semibold text-[#6EB8BB] uppercase tracking-widest mb-1">Manajemen Toko</p>
-                <h1 className="text-2xl font-bold text-gray-900">Konfigurasi Toko</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Pengaturan</h1>
                 </div>
             </div>
 

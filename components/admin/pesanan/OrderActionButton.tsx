@@ -1,71 +1,78 @@
     "use client"
 
     import { useState } from "react"
+    import { createClient } from "@/lib/supabase/client"
     import { useRouter } from "next/navigation"
-    import Link from "next/link"
-    import { Loader2 } from "lucide-react"
+    import { Loader2, PackageCheck, Truck, CheckCircle2 } from "lucide-react"
 
-    export default function OrderActionButton({
-    orderId, status,
-    }: { orderId: string; status: string }) {
-    const router   = useRouter()
+    type OrderActionProps = {
+    orderId: string;
+    status: string;
+    }
+
+    export default function OrderActionButton({ orderId, status }: OrderActionProps) {
+    const router = useRouter()
+    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
-    async function updateStatus(newStatus: string) {
+    // Fungsi untuk update status pesanan di Database
+    const updateStatus = async (newStatus: string, confirmMessage: string) => {
+        if (!confirm(confirmMessage)) return;
+
         setLoading(true)
-        await fetch(`/api/pesanan/${orderId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-        })
+        const { error } = await supabase
+        .from("orders")
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", orderId)
+
+        if (error) {
+        alert("Gagal memproses pesanan: " + error.message)
+        } else {
+        router.refresh() // Refresh agar halaman Admin & Pembeli tersinkron
+        }
         setLoading(false)
-        router.refresh()
     }
 
-    if (loading) {
-        return (
-        <div className="w-24 h-9 flex items-center justify-center">
-            <Loader2 size={14} className="animate-spin text-gray-400" />
-        </div>
-        )
-    }
-
+    // Tampilkan tombol yang berbeda berdasarkan status pesanan saat ini
     if (status === "paid") {
         return (
-        <button onClick={() => updateStatus("processing")}
-            className="px-3 py-1.5 bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white text-xs font-bold rounded-lg transition-all">
-            Proses
+        <button
+            onClick={() => updateStatus("processing", "Terima dan proses pesanan ini?")}
+            disabled={loading}
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white text-sm font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+        >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <PackageCheck size={16} />}
+            Terima Pesanan
         </button>
         )
     }
+
     if (status === "processing" || status === "packing") {
         return (
-        <button onClick={() => updateStatus("shipped")}
-            className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-lg transition-all">
-            Selesaikan
+        <button
+            onClick={() => updateStatus("shipped", "Tandai pesanan ini sudah diserahkan ke kurir?")}
+            disabled={loading}
+            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+        >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Truck size={16} />}
+            Kirim Pesanan
         </button>
         )
     }
-    if (status === "delivered") {
+
+    if (status === "shipped") {
         return (
-        <Link href={`/admin/pesanan/${orderId}`}
-            className="px-3 py-1.5 text-[#6EB8BB] text-xs font-bold rounded-lg hover:bg-green-50 transition-all">
-            Lihat Detail
-        </Link>
+        <button
+            onClick={() => updateStatus("delivered", "Pesanan sudah sampai ke pembeli?")}
+            disabled={loading}
+            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+        >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+            Tandai Selesai
+        </button>
         )
     }
-    if (status === "cancelled") {
-        return (
-        <Link href={`/admin/pesanan/${orderId}`}
-            className="px-3 py-1.5 text-gray-500 text-xs font-medium rounded-lg hover:bg-gray-100 transition-all">
-            Lihat Alasan
-        </Link>
-        )
-    }
-    return (
-        <Link href={`/admin/pesanan/${orderId}`}
-        className="px-3 py-1.5 text-gray-500 text-xs font-medium rounded-lg hover:bg-gray-100 transition-all">
-        Detail
-        </Link>
-    )
+
+    // Jika pesanan sudah selesai/batal, tidak perlu aksi lanjutan.
+    return null;
     }

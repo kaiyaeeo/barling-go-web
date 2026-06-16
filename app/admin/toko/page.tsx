@@ -11,7 +11,8 @@
     // 1. Ambil Profil Toko
     const { data: profile } = await supabase
         .from("profiles")
-        .select("*")
+        // PASTIKAN umkm_banner ADA DI DALAM SELECT INI:
+        .select("id, full_name, phone, avatar_url, umkm_name, umkm_logo, umkm_banner, umkm_description, address, city, postal_code, promo_package")
         .eq("id", user.id)
         .single()
 

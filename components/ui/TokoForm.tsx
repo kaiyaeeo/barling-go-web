@@ -4,9 +4,9 @@
     import { useRouter } from "next/navigation"
     import { createClient } from "@/lib/supabase/client"
     import {
-    Loader2, Check, MapPin, Crown, ArrowRight, User, ShieldCheck,
-    Store, Star, Package, Eye, BadgeCheck, Phone, Globe, Sparkles,
-    X, Camera, CheckCircle2, Zap, TrendingUp, Rocket, Award, BarChart2,
+    Loader2, Check, MapPin, Crown, ArrowRight, User, ShieldCheck, 
+    Store, Star, Package, Eye, BadgeCheck, Phone, Globe, Sparkles, 
+    X, Camera, CheckCircle2, Zap, TrendingUp, Rocket, Award, BarChart2, 
     ShoppingBag, ChevronRight, Lock, Megaphone, AlertTriangle
     } from "lucide-react"
     import Link from "next/link"
@@ -14,9 +14,10 @@
     type Profile = {
     id: string; full_name: string | null; phone: string | null;
     avatar_url: string | null; umkm_name: string | null;
-    umkm_logo: string | null; umkm_description: string | null;
-    address: string | null; city: string | null;
-    postal_code: string | null; promo_package: string | null;
+    umkm_logo: string | null; umkm_banner?: string | null;
+    umkm_description: string | null; address: string | null; 
+    city: string | null; postal_code: string | null; 
+    promo_package: string | null;
     }
 
     type Stats = {
@@ -28,7 +29,9 @@
     export default function TokoForm({ initialData, stats }: { initialData: Profile, stats: Stats }) {
     const router   = useRouter()
     const supabase = createClient()
+    
     const logoRef  = useRef<HTMLInputElement>(null)
+    const bannerRef = useRef<HTMLInputElement>(null)
 
     const [form, setForm] = useState({
         full_name:        initialData.full_name        ?? "",
@@ -40,13 +43,20 @@
         postal_code:      initialData.postal_code      ?? "",
     })
 
-    const [logoUrl,   setLogoUrl]   = useState<string | null>(
-        initialData.umkm_logo
-        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${initialData.umkm_logo}`
-        : null
+    // State Logo
+    const [logoUrl, setLogoUrl] = useState<string | null>(
+        initialData.umkm_logo ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${initialData.umkm_logo}` : null
     )
-    const [logoPath,  setLogoPath]  = useState(initialData.umkm_logo ?? "")
+    const [logoPath, setLogoPath]   = useState(initialData.umkm_logo ?? "")
     const [uploading, setUploading] = useState(false)
+
+    // State Banner / Foto Sampul ala LinkedIn
+    const [bannerUrl, setBannerUrl] = useState<string | null>(
+        initialData.umkm_banner ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${initialData.umkm_banner}` : null
+    )
+    const [bannerPath, setBannerPath] = useState(initialData.umkm_banner ?? "")
+    const [bannerUploading, setBannerUploading] = useState(false)
+
     const [saving,    setSaving]    = useState(false)
     const [saved,     setSaved]     = useState(false)
     const [error,     setError]     = useState<string | null>(null)
@@ -55,15 +65,40 @@
         setForm((p) => ({ ...p, [e.target.name]: e.target.value }))
     }
 
+    // Auto-Save Logo saat Upload selesai
     async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0]
-        if (!file) return
+        const file = e.target.files?.[0]; if (!file) return;
         setUploading(true)
         const ext  = file.name.split(".").pop()
         const path = `umkm-logos/${initialData.id}-${Date.now()}.${ext}`
-        const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true })
-        if (!error) { setLogoPath(path); setLogoUrl(URL.createObjectURL(file)) }
+        
+        const { error: storageError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true })
+        if (!storageError) { 
+        setLogoPath(path)
+        setLogoUrl(URL.createObjectURL(file))
+        // Langsung simpan permanen ke database biar tidak hilang saat di-reload
+        await supabase.from("profiles").update({ umkm_logo: path }).eq("id", initialData.id)
+        router.refresh()
+        }
         setUploading(false)
+    }
+
+    // Auto-Save Banner saat Upload selesai ala LinkedIn
+    async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]; if (!file) return;
+        setBannerUploading(true)
+        const ext  = file.name.split(".").pop()
+        const path = `umkm-banners/${initialData.id}-${Date.now()}.${ext}`
+        
+        const { error: storageError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true })
+        if (!storageError) { 
+        setBannerPath(path)
+        setBannerUrl(URL.createObjectURL(file)) 
+        // Langsung simpan permanen ke database biar tidak hilang saat di-reload
+        await supabase.from("profiles").update({ umkm_banner: path }).eq("id", initialData.id)
+        router.refresh()
+        }
+        setBannerUploading(false)
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -73,7 +108,7 @@
         .from("profiles")
         .update({
             full_name: form.full_name, phone: form.phone,
-            umkm_name: form.umkm_name, umkm_logo: logoPath || null,
+            umkm_name: form.umkm_name, 
             umkm_description: form.umkm_description,
             address: form.address, city: form.city, postal_code: form.postal_code,
             updated_at: new Date().toISOString(),
@@ -86,16 +121,15 @@
         router.refresh()
     }
 
-    // Completeness
     const fieldItems = [
-        { label: "Nama toko",    value: form.umkm_name,        ok: !!form.umkm_name        },
-        { label: "Deskripsi",    value: form.umkm_description, ok: !!form.umkm_description  },
-        { label: "Alamat",       value: form.address,          ok: !!form.address           },
-        { label: "Kota",         value: form.city,             ok: !!form.city              },
-        { label: "Kode pos",     value: form.postal_code,      ok: !!form.postal_code       },
-        { label: "Nama pemilik", value: form.full_name,        ok: !!form.full_name         },
-        { label: "WhatsApp",     value: form.phone,            ok: !!form.phone             },
-        { label: "Logo toko",    value: logoPath,              ok: !!logoPath               },
+        { label: "Nama toko",     value: form.umkm_name,        ok: !!form.umkm_name        },
+        { label: "Deskripsi",     value: form.umkm_description, ok: !!form.umkm_description  },
+        { label: "Alamat",        value: form.address,          ok: !!form.address           },
+        { label: "Kota",          value: form.city,             ok: !!form.city              },
+        { label: "Kode pos",      value: form.postal_code,      ok: !!form.postal_code       },
+        { label: "Nama pemilik",  value: form.full_name,        ok: !!form.full_name         },
+        { label: "WhatsApp",      value: form.phone,            ok: !!form.phone             },
+        { label: "Logo toko",     value: logoPath,              ok: !!logoPath               },
     ]
     const filled       = fieldItems.filter(f => f.ok).length
     const completeness = Math.round((filled / fieldItems.length) * 100)
@@ -116,18 +150,9 @@
     const LABEL = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5"
 
     const pakets = [
-        {
-        key: "REGULER", name: "Reguler", price: "Gratis", icon: Store,
-        features: [true, true, true, false, false, false, false]
-        },
-        {
-        key: "BASIC", name: "Basic", price: "Rp 50rb/bln", icon: Star,
-        features: [true, true, true, true, false, false, false]
-        },
-        {
-        key: "PREMIUM", name: "Premium", price: "Rp 150rb/bln", icon: Crown, popular: true,
-        features: [true, true, true, true, true, true, true]
-        },
+        { key: "REGULER", name: "Reguler", price: "Gratis", icon: Store, features: [true, true, true, false, false, false, false] },
+        { key: "BASIC", name: "Basic", price: "Rp 50rb/bln", icon: Star, features: [true, true, true, true, false, false, false] },
+        { key: "PREMIUM", name: "Premium", price: "Rp 150rb/bln", icon: Crown, features: [true, true, true, true, true, true, true] },
     ]
     const featureLabels = [
         "Etalase toko publik", "Manajemen pesanan", "Produk unlimited",
@@ -148,24 +173,50 @@
             </div>
         )}
 
-        {/* ── Hero card ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-            {/* Subtle banner */}
-            <div className="h-28 bg-gray-100 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#6EB8BB]/5 via-transparent to-[#6EB8BB]/10" />
+        {/* ── Hero card dengan Fitur Banner Upload ala LinkedIn ── */}
+        <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+            
+            {/* Banner Area */}
+            <div 
+            className="h-36 sm:h-48 bg-gray-100 relative overflow-hidden group cursor-pointer"
+            onClick={() => bannerRef.current?.click()}
+            title="Klik untuk mengubah foto sampul"
+            >
+            {bannerUrl ? (
+                <img src={bannerUrl} alt="Cover Toko" className="w-full h-full object-cover group-hover:brightness-75 transition-all duration-300" />
+            ) : (
+                <>
+                <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#6EB8BB]/5 via-transparent to-[#6EB8BB]/10" />
+                </>
+            )}
+
+            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1">
+                <Camera size={20} />
+                <span>Ubah Foto Sampul</span>
+            </div>
+
+            <button
+                type="button" disabled={bannerUploading}
+                onClick={(e) => { e.stopPropagation(); bannerRef.current?.click(); }}
+                className="absolute top-4 right-4 bg-white/80 p-2 rounded-xl text-gray-600 shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors z-10"
+            >
+                {bannerUploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+            </button>
+            <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+
             {isPremium && (
-                <span className="absolute top-4 right-5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-gray-900 text-[10px] font-black uppercase tracking-wider rounded-full shadow-md">
+                <span className="absolute top-4 right-5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-300 text-gray-900 text-[10px] font-black uppercase tracking-wider rounded-full shadow-md z-10 pointer-events-none">
                 <Crown size={11} className="fill-gray-900" /> Mitra {packageLabel}
                 </span>
             )}
             </div>
 
             {/* Identity row */}
-            <div className="px-6 sm:px-8 pb-0 -mt-12 flex flex-col sm:flex-row items-start gap-5 relative z-10">
+            <div className="px-6 sm:px-8 pb-0 -mt-12 flex flex-col sm:flex-row items-start gap-5 relative z-10 pointer-events-none">
 
-            {/* Logo */}
-            <div className="relative shrink-0">
+            {/* Logo upload */}
+            <div className="relative shrink-0 pointer-events-auto">
                 <div
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer group"
                 onClick={() => logoRef.current?.click()}
@@ -188,7 +239,7 @@
             </div>
 
             {/* Name + meta */}
-            <div className="flex-1 min-w-0 pt-2 sm:pt-14 pb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4 w-full">
+            <div className="flex-1 min-w-0 pt-2 sm:pt-14 pb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4 w-full pointer-events-auto">
                 <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-xl sm:text-2xl font-black text-gray-900 truncate">
@@ -213,16 +264,16 @@
                 </div>
                 </div>
 
-                {/* Stats */}
+                {/* Statistik (Angka Valid dari Database) */}
                 <div className="flex items-stretch bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden divide-x divide-gray-100 shrink-0 self-start sm:self-auto">
                 {[
                     { icon: Package,    label: "Produk",  value: stats.activeProducts, color: "text-[#6EB8BB]"   },
                     { icon: ShoppingBag,label: "Terjual", value: stats.totalSold,      color: "text-purple-500"  },
                     { icon: Star,       label: "Rating",  value: stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "—", color: "text-amber-500" },
                 ].map(({ icon: Icon, label, value, color }) => (
-                    <div key={label} className="flex flex-col items-center justify-center px-5 py-3 gap-0.5">
-                    <div className={`flex items-center gap-1 ${color}`}>
-                        <Icon size={11} className="shrink-0" />
+                    <div key={label} className="flex flex-col items-center justify-center px-5 py-3 gap-0.5 min-w-[76px]">
+                    <div className="flex items-center gap-1">
+                        <Icon size={11} className={`shrink-0 ${color}`} />
                         <p className="text-sm font-black text-gray-900">{value}</p>
                     </div>
                     <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{label}</p>
@@ -271,7 +322,6 @@
 
         {/* ── 2-column form ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
             {/* Card kiri: Identitas */}
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 py-4 border-b border-gray-100">
@@ -300,10 +350,6 @@
                     rows={5} maxLength={300} className={INPUT + " resize-none"}
                     placeholder="Ceritakan keunggulan produk andalan atau sejarah singkat toko Anda…"
                 />
-                </div>
-                <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50/60 border border-blue-100">
-                <Globe size={13} className="text-blue-400 shrink-0 mt-0.5" />
-                <p className="text-[11px] text-blue-600 leading-relaxed">Informasi ini ditampilkan publik dan dapat dilihat seluruh pengguna BARLING-GO.</p>
                 </div>
             </div>
             </div>
@@ -363,18 +409,18 @@
             </div>
         </div>
 
-        {/* ── Sticky save bar ── */}
-        <div className="sticky bottom-4 z-30 flex items-center justify-between bg-white rounded-2xl border border-gray-200 shadow-[0_8px_30px_rgba(0,0,0,0.09)] px-5 py-3.5">
+        {/* ── REVISI 2: TOMBOL SIMPAN KINI MENYATU ALAMI (TIDAK NGAMBANG / STICKY DIHAPUS) ── */}
+        <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 px-6 py-5 w-full mt-2">
             <p className="text-xs text-gray-400 hidden sm:block">
             {saved
                 ? <span className="text-emerald-600 font-bold flex items-center gap-1.5"><CheckCircle2 size={14} /> Profil berhasil diperbarui!</span>
-                : `${filled}/${fieldItems.length} atribut terisi · pastikan data sudah benar`
+                : "Sistem mendeteksi semua perubahan data teks secara aman."
             }
             </p>
             <button
             type="submit" disabled={saving || saved}
-            className={`ml-auto inline-flex items-center gap-2 px-7 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-60 ${
-                saved ? "bg-emerald-500 text-white" : "bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white shadow-sm shadow-[#6EB8BB]/30"
+            className={`ml-auto inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-60 ${
+                saved ? "bg-emerald-500 text-white" : "bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white"
             }`}
             >
             {saving && <Loader2 size={15} className="animate-spin" />}
@@ -383,7 +429,7 @@
             </button>
         </div>
 
-        {/* ── Section divider ── */}
+        {/* ── Divider Garis Putus-Putus E-Commerce ── */}
         <div className="relative py-8">
             <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-dashed border-gray-200" />
@@ -395,14 +441,14 @@
             </div>
         </div>
 
-        {/* ── Paket comparison table ── */}
+        {/* ── REVISI 4: TABEL PERBANDINGAN PAKET (BOX BASIC DISERAGAMKAN) ── */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <h2 className="text-base font-black text-gray-900 flex items-center gap-2">
-                <Crown size={17} className="text-[#6EB8BB]" /> Upgrade & Perluas Jangkauan
+                <Crown size={17} className="text-[#6EB8BB]" /> Perbandingan Paket Kemitraan
                 </h2>
-                <p className="text-xs text-gray-400 mt-1">Pilih paket mitra untuk tampil di halaman utama dan fitur eksklusif lainnya.</p>
+                <p className="text-xs text-gray-400 mt-1">Pilih paket yang paling sesuai dengan target ekspansi bisnis Anda</p>
             </div>
             <Link href="/admin/langganan"
                 className="inline-flex items-center gap-1 px-4 py-2 bg-[#E6F7F8] text-[#6EB8BB] text-xs font-bold rounded-xl hover:bg-[#C5EAE9] transition-colors shrink-0">
@@ -419,17 +465,13 @@
                     const isCurrent = packageLabel.toUpperCase() === p.key
                     return (
                         <th key={p.key} className="px-4 py-4 text-center border-l border-gray-100 w-1/4">
+                        {/* Seluruh kotak non-aktif dipaksa seragam (bg-white border-gray-200) */}
                         <div className={`inline-flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border w-full max-w-[130px] mx-auto ${
                             isCurrent
                             ? "ring-2 ring-[#6EB8BB] bg-[#E6F7F8]/40 border-[#6EB8BB]"
-                            : p.popular
-                            ? "bg-amber-50 border-amber-200"
                             : "bg-white border-gray-200"
                         }`}>
-                            {p.popular && !isCurrent && (
-                            <span className="text-[9px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full uppercase">Populer</span>
-                            )}
-                            <p className={`text-sm font-black ${p.popular && !isCurrent ? "text-amber-600" : "text-gray-900"}`}>{p.name}</p>
+                            <p className="text-sm font-black text-gray-900">{p.name}</p>
                             <p className="text-[10px] text-gray-400">{p.price}</p>
                             {isCurrent && <span className="text-[9px] font-black text-[#6EB8BB]">✓ Aktif</span>}
                         </div>
@@ -474,7 +516,7 @@
             </div>
         </div>
 
-        {/* ── Big promo banner ── */}
+        {/* ── REVISI 3: BANNER KEUNTUNGAN SEKARANG DIBAWAH TABEL PERBANDINGAN ── */}
         <div className="bg-gradient-to-br from-[#1A4C2E] via-[#2D7D46] to-[#6EB8BB] rounded-2xl p-7 lg:p-9 text-white relative overflow-hidden">
             <div className="absolute right-0 top-0 opacity-5 translate-x-1/4 -translate-y-1/4 pointer-events-none">
             <TrendingUp size={280} />
@@ -486,16 +528,13 @@
                     <Rocket size={18} className="text-yellow-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-black text-white">Tingkatkan Visibilitas & Penjualan Toko Anda</h3>
-                <span className="px-2.5 py-0.5 bg-white/10 border border-white/20 text-yellow-400 text-[10px] font-black uppercase tracking-wider rounded-full">
-                    {packageLabel}
-                </span>
                 </div>
                 <p className="text-sm text-green-50 leading-relaxed max-w-2xl">
-                Mitra premium Barling-GO tampil lebih menonjol di mata wisatawan. Raih lebih banyak pembeli dengan fitur eksklusif yang dirancang khusus untuk UMKM berkembang.
+                Mitra berbayar Barling-GO mendapatkan hak istimewa untuk tampil lebih menonjol di halaman utama, diprioritaskan di hasil pencarian, dan mendapatkan analisis data mendalam yang tidak tersedia pada paket reguler.
                 </p>
                 <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                    { icon: TrendingUp, label: "+200% Impresi",    sub: "vs Reguler"          },
+                    { icon: TrendingUp, label: "+200% Impresi",    sub: "vs Reguler"         },
                     { icon: Eye,        label: "Beranda Utama",    sub: "Tampil di spotlight" },
                     { icon: Award,      label: "Badge Pilihan",    sub: "Tingkatkan trust"    },
                     { icon: BarChart2,  label: "Analitik Lanjutan",sub: "Data penjualan"      },
@@ -519,29 +558,61 @@
             </div>
         </div>
 
-        {/* ── Mini promo cards ── */}
+        {/* ── REVISI 5: KOTAK IKLAN MINI DIKEMBALIKAN KE VERSI 600 BARIS (KOTAK BESAR BERWARNA) ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-            { icon: Megaphone, title: "Iklan Pencarian",  desc: "Tampil paling atas saat pengunjung mencari produk.", link: "/admin/iklan",       soon: false },
-            { icon: Rocket,    title: "Toko Pilihan",     desc: "Badge khusus rekomendasi admin untuk trust tinggi.", link: "/admin/langganan",   soon: false },
-            { icon: Award,     title: "Flash Sale",       desc: "Ikut serta dalam diskon bulanan Barling-GO.",        link: "/admin/iklan",       soon: true  },
-            ].map(({ icon: Icon, title, desc, link, soon }) => (
-            <div key={title} className={`bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-3.5 hover:shadow-md transition-all ${soon ? "opacity-60" : ""}`}>
-                <div className="w-9 h-9 rounded-xl bg-[#E6F7F8] flex items-center justify-center shrink-0">
-                <Icon size={16} className="text-[#6EB8BB]" />
+            {
+                icon:  Megaphone,
+                title: "Iklan Produk",
+                desc:  "Promosikan produk pilihan ke ribuan pengunjung dengan paket iklan fleksibel mulai 7 hari.",
+                badge: "Mulai Rp 30rb",
+                color: "text-[#6EB8BB]", bg: "bg-[#E6F7F8]", border: "border-[#C5EAE9]",
+                href:  "/admin/iklan",
+                cta:   "Beli Iklan",
+            },
+            {
+                icon:  ShoppingBag,
+                title: "Flash Sale",
+                desc:  "Buat event diskon terbatas waktu untuk menarik lebih banyak pembeli di momen peak.",
+                badge: "Segera Hadir",
+                color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-100",
+                href:  "#",
+                cta:   "Ingatkan Saya Nanti",
+                soon:  true,
+            },
+            {
+                icon:  Award,
+                title: "Toko Pilihan",
+                desc:  "Dapatkan kurasi sebagai toko pilihan editor Barling-GO dan tampil di banner khusus.",
+                badge: "Eksklusif Premium",
+                color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-100",
+                href:  "/admin/langganan",
+                cta:   "Lihat Syarat",
+                premium: true,
+            },
+            ].map(({ icon: Icon, title, desc, badge, color, bg, border, href, cta, soon, premium }) => (
+            <div key={title} className={`bg-white rounded-2xl border ${border} shadow-sm p-5 flex flex-col gap-4 ${soon ? "opacity-75" : ""}`}>
+                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center`}>
+                <Icon size={18} className={color} />
                 </div>
-                <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-bold text-gray-900">{title}</p>
-                    {soon && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded border border-gray-200 uppercase">Segera</span>
-                    )}
+                <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h4 className="text-sm font-bold text-gray-900">{title}</h4>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${bg} ${color} ${border}`}>{badge}</span>
                 </div>
-                <p className="text-xs text-gray-400 mb-2.5 leading-relaxed">{desc}</p>
-                <Link href={link} className={`text-xs font-bold text-[#6EB8BB] hover:underline flex items-center gap-1 ${soon ? "pointer-events-none text-gray-400" : ""}`}>
-                    {soon ? "Ingatkan Saya" : <>Pelajari lebih lanjut <ArrowRight size={10} /></>}
+                <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                </div>
+                <Link
+                href={href}
+                className={`w-full py-2.5 text-xs font-bold rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                    soon    ? "bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none" :
+                    premium && !isPremium ? "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100" :
+                            "bg-[#6EB8BB] hover:bg-[#5AA4A7] text-white"
+                }`}
+                >
+                {premium && !isPremium && <Lock size={11} />}
+                {cta}
                 </Link>
-                </div>
             </div>
             ))}
         </div>
