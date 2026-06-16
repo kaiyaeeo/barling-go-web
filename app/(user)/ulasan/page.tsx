@@ -270,7 +270,6 @@
                 </div>
             </div>
 
-            {/* ── TWO-COLUMN COMPLEX LAYOUT (Tokopedia Style) ── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 
                 {/* Left Column: Tabs Navigation and Item list */}
@@ -479,7 +478,6 @@
                     </div>
                 </div>
 
-                {/* Review Guidelines (Tokopedia/Traveloka style) */}
                 <div className="bg-white rounded-2xl border border-gray-150 p-5 shadow-xs space-y-3.5">
                     <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-1.5">
                     <Info size={14} className="text-[#6EB8BB]" /> Tips Menulis Ulasan

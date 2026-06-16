@@ -280,8 +280,7 @@
                 
                 {/* Kolom Kiri: Grouped Items */}
                 <div className="lg:col-span-2 space-y-4">
-                
-                {/* Select All Bar (Tokopedia Style) */}
+            
                 <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-xs flex items-center justify-between">
                     <label className="flex items-center gap-3 cursor-pointer select-none">
                     <input 
@@ -388,7 +387,6 @@
                                 <Trash2 size={16} />
                                 </button>
 
-                                {/* Counter UI (Tokopedia style) */}
                                 <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50/50">
                                 <button 
                                     onClick={() => handleQtyChange(item.product_id, "minus")}

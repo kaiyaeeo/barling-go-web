@@ -14,10 +14,8 @@
     User,
     Award, 
     Zap, 
-    MapPin, 
     ChevronRight, 
     Sparkles,
-    TrendingUp,
     BadgeCheck,
     Compass
     } from "lucide-react"
@@ -26,7 +24,6 @@
     { href: "/dashboard",      label: "Dashboard",     icon: LayoutDashboard, key: "dashboard" },
     { href: "/profil",         label: "Profil Saya",   icon: User,            key: "profil"    },
     { href: "/pesanan",        label: "Pesanan",       icon: BookOpen,        key: "pesanan"   },
-    // ── LINK YANG SUDAH DIBENARKAN ──
     { href: "/wishlist",       label: "Tersimpan",     icon: Heart,           key: "saved"     },
     { href: "/ulasan",         label: "Ulasan Saya",   icon: Star,            key: "ulasan"    },
     { href: "/settings",       label: "Pengaturan",    icon: Settings,        key: "settings"  },
@@ -102,19 +99,21 @@
         <aside className="sticky top-0 h-screen overflow-y-auto scrollbar-none flex flex-col bg-white w-full border-r border-slate-200/50">
         
         {/* ── App Logo ── */}
-        <div className="px-6 py-6 flex items-center justify-between border-b border-slate-100">
-            <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-tr from-[#6EB8BB] to-[#9FCCCE] rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-black text-xs">BG</span>
-            </div>
-            <span className="font-black text-gray-900 tracking-widest text-base truncate">BARLING-GO</span>
-            </div>
-            <span className="text-[9px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase">
+        {/* REVISI: Mengubah py-5 menjadi h-16 agar tingginya persis sama dengan Topbar utama */}
+        <div className="h-16 px-6 flex items-center justify-between border-b border-gray-100 shrink-0">
+            <Link href="/" className="flex items-center">
+            <img 
+                src="/logo.png" 
+                alt="Logo Barling-go" 
+                className="h-10 w-auto object-contain max-w-[140px] hover:opacity-90 transition-opacity" 
+            />
+            </Link>
+            <span className="text-[9px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase select-none">
             Client
             </span>
         </div>
 
-        {/* ── User Identity (Tokopedia / Traveloka Card Style) ── */}
+        {/* ── User Identity */}
         <div className={`bg-gradient-to-br ${tierInfo.gradient} border-b border-slate-100 p-5`}>
             <div className="flex items-center gap-3.5 mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6EB8BB] to-[#9FCCCE] flex items-center justify-center text-white font-black text-lg shrink-0 overflow-hidden shadow-sm ring-2 ring-white">
@@ -159,7 +158,7 @@
             </div>
         </div>
 
-        {/* ── Nav Items (Tokopedia Style with Glowing Indicators) ── */}
+        {/* ── Nav Items */}
         <nav className="p-4 space-y-1 flex-1">
             <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3.5 mt-1">Menu Utama</p>
             
@@ -207,10 +206,6 @@
             <LogOut size={14} className="text-red-400" /> Keluar
             </button>
             
-            {/* Version branding at bottom */}
-            <p className="text-[8px] font-semibold text-slate-350 text-center pt-2 select-none">
-            Barling-go v2.8 • Client Dashboard
-            </p>
         </div>
 
         </aside>
