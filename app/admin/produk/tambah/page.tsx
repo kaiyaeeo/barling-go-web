@@ -142,7 +142,7 @@
 
         {/* ===== TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14">
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                 <button onClick={() => router.back()} className="p-1.5 mr-1 hover:bg-gray-100 text-gray-500 hover:text-gray-700 rounded-lg transition-all" title="Kembali ke halaman sebelumnya">
@@ -168,7 +168,7 @@
             </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             {/* ===== PAGE HEADER ===== */}
             <div className="mb-6">

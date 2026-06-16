@@ -97,7 +97,7 @@
                 </Link>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-8 max-w-6xl mx-auto">
+            <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-8 max-w-7xl mx-auto">
                 <nav className="flex items-center gap-2 text-xs text-white/70 mb-3 drop-shadow-md">
                 <Link href="/" className="hover:text-white">Home</Link>
                 <ChevronRight size={12} />
@@ -112,7 +112,7 @@
             </div>
 
             {/* ===== MAIN CONTENT CONTAINER ===== */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
 
                 <div className="space-y-6">
@@ -359,7 +359,7 @@
 
             {/* ===== FOOTER ===== */}
             <footer className="border-t border-gray-100 mt-20 bg-white">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                 <p className="font-black text-gray-900 tracking-tight">BARLING-GO</p>
                 <p className="text-xs text-gray-400 mt-1">© 2026 BARLING-GO. All Rights Reserved</p>

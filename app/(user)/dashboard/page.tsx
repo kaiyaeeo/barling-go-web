@@ -113,7 +113,7 @@
             </div>
 
             {/* ── ISI DASHBOARD ── */}
-            <div className="p-6 lg:p-10 w-full max-w-6xl mx-auto space-y-6">
+            <div className="p-6 lg:p-10 w-full max-w-7xl mx-auto space-y-6">
 
             {/* 1. Header Banner Premium (Gradasi Warna Brand, NO GREEN) */}
             <div className="bg-gradient-to-r from-[#6EB8BB] via-[#87C5C7] to-[#9FCCCE] rounded-3xl p-6 md:p-8 text-white shadow-md relative overflow-hidden transition-all duration-300">

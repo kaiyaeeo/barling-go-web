@@ -59,7 +59,7 @@
             </div>
 
             {/* ── CONTENT ── */}
-            <div className="p-6 lg:p-10 w-full max-w-6xl mx-auto space-y-8">
+            <div className="p-6 lg:p-10 w-full max-w-7xl mx-auto space-y-8">
             
             {/* Header Section dengan deskripsi dan badge */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

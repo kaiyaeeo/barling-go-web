@@ -57,7 +57,7 @@
             </div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
                 <div>
@@ -165,7 +165,7 @@
             </div>
 
             <footer className="border-t border-gray-100 mt-16">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between gap-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between gap-4">
                 <div>
                 <p className="font-black text-gray-900">BARLING-GO</p>
                 <p className="text-xs text-gray-400">© 2026 BARLING-GO. All Rights Reserved</p>

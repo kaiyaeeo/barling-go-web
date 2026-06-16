@@ -165,7 +165,7 @@
 
         {/* ===== TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14">
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                 <LayoutDashboard size={13} />
@@ -193,7 +193,7 @@
             </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-12">
 
             {/* ===== GREETING HERO ===== */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#6EB8BB] via-[#6EB8BB] to-[#6EB8BB] p-6 md:p-8 text-white">

@@ -259,7 +259,7 @@
         </div>
 
         {/* ── MAIN LAYOUT ── */}
-        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 mt-6">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 mt-6">
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-6">Keranjang Belanja</h1>
 
             {cartItems.length === 0 ? (

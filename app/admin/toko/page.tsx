@@ -34,7 +34,7 @@
 
     return (
         <main className="min-h-screen bg-[#F8FAFC] pb-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
             <h1 className="text-2xl font-black text-gray-900">Profil Toko & UMKM</h1>
             <p className="text-sm text-gray-500 mt-1">Kelola informasi publik dan data pemilik toko Barling-GO Anda.</p>

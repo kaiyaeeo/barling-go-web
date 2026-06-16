@@ -21,7 +21,7 @@
 
     return (
         <main className="min-h-screen bg-gray-50 pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center gap-3 mb-8">
             <Link href="/admin/pesanan" className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
                 <ArrowLeft size={18} />

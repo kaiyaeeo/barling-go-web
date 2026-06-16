@@ -19,7 +19,7 @@
 
     return (
         <main className="min-h-screen bg-gray-50 pt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
             <h1 className="text-xl font-bold text-gray-900">Laporan & Export</h1>
             <p className="text-sm text-gray-400 mt-1">Export data dalam format Excel (.xlsx) atau HTML</p>
