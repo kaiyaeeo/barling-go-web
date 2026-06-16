@@ -196,7 +196,7 @@
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-12">
 
             {/* ===== GREETING HERO ===== */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#3d8a60] via-[#6EB8BB] to-[#5aa5a8] p-6 md:p-8 text-white">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#6EB8BB] via-[#6EB8BB] to-[#6EB8BB] p-6 md:p-8 text-white">
             <div className="absolute right-0 top-0 w-56 h-56 opacity-5 translate-x-1/4 -translate-y-1/4 pointer-events-none">
                 <TrendingUp size={224} />
             </div>

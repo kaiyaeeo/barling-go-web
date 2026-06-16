@@ -92,26 +92,6 @@
     return (
         <main className="min-h-screen bg-[#F5F5F5] pb-20">
 
-        {/* ── Topbar ── */}
-        <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between h-14">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                <LayoutDashboard size={13} />
-                <button onClick={() => router.push("/admin/dashboard")} className="hover:text-gray-600 transition-colors">Dashboard</button>
-                <ChevronRight size={13} />
-                <span className="text-gray-700 font-semibold">Pengaturan</span>
-                </div>
-                <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#E6F7F8] border border-[#6EB8BB]/20 text-[#5AA4A7] rounded-xl text-xs font-semibold">
-                    <Settings size={12} />
-                    <span>Pengaturan Merchant</span>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <form onSubmit={handleSave} className="space-y-5">
 
