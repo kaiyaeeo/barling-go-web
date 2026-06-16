@@ -90,7 +90,7 @@
     const CARD_HDR = "flex items-center gap-2.5 px-5 py-4 border-b border-gray-100"
 
     return (
-        <main className="min-h-screen bg-[#F5F5F5] pb-20">
+        <main className="min-h-screen bg-[#F8FAFC] pb-20">
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <form onSubmit={handleSave} className="space-y-5">

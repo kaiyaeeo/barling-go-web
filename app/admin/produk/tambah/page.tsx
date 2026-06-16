@@ -119,7 +119,7 @@
 
     if (success) {
         return (
-        <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 flex flex-col items-center gap-4 max-w-sm w-full mx-4 text-center">
             <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center">
                 <CheckCircle2 size={32} className="text-emerald-500" />
@@ -138,7 +138,7 @@
     }
 
     return (
-        <div className="min-h-screen bg-[#F5F5F5] pb-20">
+        <div className="min-h-screen bg-[#F8FAFC] pb-20">
 
         {/* ===== TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20">

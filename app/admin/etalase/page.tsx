@@ -52,7 +52,7 @@
     const TABS = ["Semua Produk", "Terlaris", "Promo", "Terbaru", "Unggulan"]
 
     return (
-        <main className="min-h-screen bg-[#F5F5F5]">
+        <main className="min-h-screen bg-[#F8FAFC]">
 
         {/* ===== STICKY TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">

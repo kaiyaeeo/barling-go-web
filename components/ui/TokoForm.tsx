@@ -435,7 +435,7 @@
             <div className="w-full border-t border-dashed border-gray-200" />
             </div>
             <div className="relative flex justify-center">
-            <span className="bg-[#F5F5F5] px-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            <span className="bg-[#F8FAFC] px-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                 Layanan & Promosi
             </span>
             </div>

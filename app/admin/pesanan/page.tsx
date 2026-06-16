@@ -116,7 +116,7 @@
     const logoUrl  = profile?.umkm_logo ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${profile.umkm_logo}` : null
 
     return (
-        <main className="min-h-screen bg-[#F5F5F5] pb-20">
+        <main className="min-h-screen bg-[#F8FAFC] pb-20">
 
         {/* ── Topbar (Sama Seperti Halaman Produk) ── */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">

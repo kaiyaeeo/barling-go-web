@@ -161,7 +161,7 @@
     }
 
     return (
-        <main className="min-h-screen bg-[#F5F5F5] pb-20">
+        <main className="min-h-screen bg-[#F8FAFC] pb-20">
         {/* ── Topbar ── */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">

@@ -18,7 +18,7 @@
 
     return (
         // ── LAYOUT UTAMA: Kunci layout agar Sidebar dan Konten tidak saling tumpang tindih ──
-        <div className="flex min-h-screen bg-[#F5F5F5]">
+        <div className="flex min-h-screen bg-[#F8FAFC]">
         
         {/* ── KIRI: SIDEBAR (Dikunci 280px, Tinggi Penuh) ── */}
         <div className="hidden md:block w-[280px] shrink-0 bg-white border-r border-gray-200 z-10">

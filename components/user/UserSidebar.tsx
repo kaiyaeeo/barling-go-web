@@ -4,20 +4,32 @@
     import { usePathname, useRouter } from "next/navigation"
     import { createClient } from "@/lib/supabase/client"
     import {
-    LayoutDashboard, BookOpen, Heart,
-    Star, Settings, HelpCircle, LogOut, User,
-    Award, Zap, MapPin, ChevronRight, Sparkles,
-    TrendingUp
+    LayoutDashboard, 
+    BookOpen, 
+    Heart,
+    Star, 
+    Settings, 
+    HelpCircle, 
+    LogOut, 
+    User,
+    Award, 
+    Zap, 
+    MapPin, 
+    ChevronRight, 
+    Sparkles,
+    TrendingUp,
+    BadgeCheck,
+    Compass
     } from "lucide-react"
 
     const navItems = [
-    // Dikembalikan ke /dashboard agar masuk ke dashboard pengunjung
     { href: "/dashboard",      label: "Dashboard",     icon: LayoutDashboard, key: "dashboard" },
     { href: "/profil",         label: "Profil Saya",   icon: User,            key: "profil"    },
     { href: "/pesanan",        label: "Pesanan",       icon: BookOpen,        key: "pesanan"   },
-    { href: "/profil/saved",   label: "Tersimpan",     icon: Heart,           key: "saved"     },
-    { href: "/profil/ulasan",  label: "Ulasan Saya",   icon: Star,            key: "ulasan"    },
-    { href: "/profil/settings",label: "Pengaturan",    icon: Settings,        key: "settings"  },
+    // ── LINK YANG SUDAH DIBENARKAN ──
+    { href: "/wishlist",       label: "Tersimpan",     icon: Heart,           key: "saved"     },
+    { href: "/ulasan",         label: "Ulasan Saya",   icon: Star,            key: "ulasan"    },
+    { href: "/settings",       label: "Pengaturan",    icon: Settings,        key: "settings"  },
     ]
 
     type Profile = {
@@ -31,27 +43,27 @@
     label: string; textColor: string; bgColor: string; border: string;
     gradient: string; icon: any; nextLabel?: string; nextPoints?: number
     }> = {
-    free:     {
+    free: {
         label:      "Tourist Explorer",
-        textColor:  "text-gray-600",
-        bgColor:    "bg-gray-100",
-        border:     "border-gray-200",
-        gradient:   "from-gray-50 to-white",
-        icon:       MapPin,
+        textColor:  "text-slate-500",
+        bgColor:    "bg-slate-100",
+        border:     "border-slate-200",
+        gradient:   "from-slate-50 to-white",
+        icon:       Compass,
         nextLabel:  "Explorer",
         nextPoints: 500,
     },
     explorer: {
         label:      "Explorer",
-        textColor:  "text-blue-700",
-        bgColor:    "bg-blue-50",
-        border:     "border-blue-100",
-        gradient:   "from-blue-50 to-white",
+        textColor:  "text-[#6EB8BB]",
+        bgColor:    "bg-[#6EB8BB]/10",
+        border:     "border-[#6EB8BB]/20",
+        gradient:   "from-[#6EB8BB]/5 to-white",
         icon:       Zap,
         nextLabel:  "Pro Explorer",
         nextPoints: 2000,
     },
-    pro:      {
+    pro: {
         label:     "Pro Explorer",
         textColor: "text-amber-700",
         bgColor:   "bg-amber-50",
@@ -87,94 +99,120 @@
         : 100
 
     return (
-        <aside className="sticky top-0 h-screen overflow-y-auto scrollbar-none flex flex-col bg-white">
+        <aside className="sticky top-0 h-screen overflow-y-auto scrollbar-none flex flex-col bg-white w-full border-r border-slate-200/50">
+        
         {/* ── App Logo ── */}
-        <div className="px-6 py-5 flex items-center gap-3 border-b border-gray-100">
-            <div className="w-8 h-8 bg-[#6EB8BB] rounded-lg flex items-center justify-center shadow-sm shrink-0">
-            <span className="text-white font-black text-xs">BG</span>
+        <div className="px-6 py-6 flex items-center justify-between border-b border-slate-100">
+            <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-tr from-[#6EB8BB] to-[#9FCCCE] rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white font-black text-xs">BG</span>
             </div>
-            <span className="font-black text-gray-900 tracking-widest text-lg truncate">BARLING-GO</span>
+            <span className="font-black text-gray-900 tracking-widest text-base truncate">BARLING-GO</span>
+            </div>
+            <span className="text-[9px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase">
+            Client
+            </span>
         </div>
 
-        {/* ── User identity ── */}
-        <div className={`bg-gradient-to-br ${tierInfo.gradient} border-b border-gray-100 p-6`}>
-            <div className="flex flex-col xl:flex-row items-center xl:items-start gap-4 mb-5 text-center xl:text-left">
-            <div className="w-14 h-14 rounded-2xl bg-[#6EB8BB] flex items-center justify-center text-white font-black text-xl shrink-0 overflow-hidden shadow-sm ring-4 ring-white mx-auto xl:mx-0">
+        {/* ── User Identity (Tokopedia / Traveloka Card Style) ── */}
+        <div className={`bg-gradient-to-br ${tierInfo.gradient} border-b border-slate-100 p-5`}>
+            <div className="flex items-center gap-3.5 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6EB8BB] to-[#9FCCCE] flex items-center justify-center text-white font-black text-lg shrink-0 overflow-hidden shadow-sm ring-2 ring-white">
                 {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
                 ) : initials}
             </div>
-            <div className="min-w-0">
-                <p className="text-base font-black text-gray-900 truncate">{profile?.full_name ?? "Pengguna"}</p>
-                <span className={`inline-flex items-center justify-center gap-1.5 text-[10px] font-bold px-2.5 py-1 mt-1.5 rounded-full border ${tierInfo.bgColor} ${tierInfo.textColor} ${tierInfo.border}`}>
-                <TierIcon size={11} /> {tierInfo.label}
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1">
+                <p className="text-sm font-black text-slate-800 truncate">{profile?.full_name ?? "Pengguna"}</p>
+                <BadgeCheck size={14} className="text-[#6EB8BB] shrink-0 fill-[#6EB8BB]/10" />
+                </div>
+                <span className={`inline-flex items-center justify-center gap-1 text-[9px] font-bold px-2 py-0.5 mt-1 rounded-md border ${tierInfo.bgColor} ${tierInfo.textColor} ${tierInfo.border}`}>
+                <TierIcon size={10} /> {tierInfo.label}
                 </span>
             </div>
             </div>
 
-            {/* Points + progress */}
-            <div className="bg-white/80 rounded-2xl p-3.5 border border-gray-200/60 shadow-sm space-y-2 backdrop-blur-sm">
+            {/* Points & Progress Bar (Brand color gradient, NO green) */}
+            <div className="bg-white/95 rounded-xl p-3 border border-slate-150 shadow-2xs space-y-2 backdrop-blur-md">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                <Sparkles size={13} className="text-[#6EB8BB]" />
-                <span className="text-xs font-bold text-gray-700">Explorer Points</span>
+                <Sparkles size={12} className="text-[#6EB8BB]" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Explorer Points</span>
                 </div>
-                <span className="text-sm font-black text-[#6EB8BB]">{points.toLocaleString("id-ID")}</span>
+                <span className="text-xs font-black text-[#6EB8BB]">{points.toLocaleString("id-ID")}</span>
             </div>
+            
             {tierInfo.nextPoints && (
                 <>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
                     <div
-                    className="h-full bg-gradient-to-r from-[#6EB8BB] to-[#3FA15E] rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-[#6EB8BB] to-[#9FCCCE] rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${pointsPct}%` }}
                     />
                 </div>
-                <p className="text-[10px] font-semibold text-gray-500 text-right">
-                    {tierInfo.nextPoints - points} poin → <span className="text-gray-800">{tierInfo.nextLabel}</span>
+                <p className="text-[9px] font-semibold text-slate-400 text-right">
+                    {tierInfo.nextPoints - points} poin lagi → <span className="text-slate-700 font-bold">{tierInfo.nextLabel}</span>
                 </p>
                 </>
             )}
             </div>
         </div>
 
-        {/* ── Nav items ── */}
-        <nav className="p-4 space-y-1.5 flex-1">
-            <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 mt-2">Menu Utama</p>
+        {/* ── Nav Items (Tokopedia Style with Glowing Indicators) ── */}
+        <nav className="p-4 space-y-1 flex-1">
+            <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3.5 mt-1">Menu Utama</p>
+            
             {navItems.map((item) => {
             const Icon     = item.icon
-            const isActive = active ? active === item.key : pathname === item.href || pathname.startsWith(item.href + "/")
+            const isActive = active
+                ? active === item.key
+                : pathname === item.href || pathname.startsWith(item.href + "/")
+                
             return (
                 <Link
-                key={item.href} href={item.href}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                key={item.href} 
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-bold transition-all relative ${
                     isActive
-                    ? "bg-[#6EB8BB] text-white shadow-md shadow-[#6EB8BB]/20"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-[#6EB8BB]"
+                    ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border-l-4 border-[#6EB8BB]"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-[#6EB8BB] border-l-4 border-transparent"
                 }`}
                 >
-                <Icon size={18} className="shrink-0" />
+                <Icon size={16} className={`shrink-0 ${isActive ? "text-[#6EB8BB]" : "text-slate-400"}`} />
                 <span className="flex-1 truncate">{item.label}</span>
-                {isActive && <ChevronRight size={14} className="text-white shrink-0 opacity-80" />}
+                
+                {isActive ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#6EB8BB]" />
+                ) : (
+                    <ChevronRight size={12} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
                 </Link>
             )
             })}
         </nav>
 
-        {/* ── Bottom links ── */}
-        <div className="p-4 border-t border-gray-100 space-y-1 bg-gray-50/50">
+        {/* ── Bottom Links ── */}
+        <div className="p-4 border-t border-slate-150 space-y-1 bg-slate-50/50 shrink-0">
             <Link
             href="/bantuan"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-500 hover:bg-white hover:text-gray-700 transition-all border border-transparent"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-white hover:text-slate-800 transition-all border border-transparent shadow-2xs hover:shadow-xs"
             >
-            <HelpCircle size={16} /> Pusat Bantuan
+            <HelpCircle size={14} className="text-slate-400" /> Pusat Bantuan
             </Link>
             <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-400 hover:bg-red-50 hover:text-red-500 transition-all w-full text-left border border-transparent"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all w-full text-left border border-transparent"
             >
-            <LogOut size={16} /> Keluar
+            <LogOut size={14} className="text-red-400" /> Keluar
             </button>
+            
+            {/* Version branding at bottom */}
+            <p className="text-[8px] font-semibold text-slate-350 text-center pt-2 select-none">
+            Barling-go v2.8 • Client Dashboard
+            </p>
         </div>
+
         </aside>
     )
     }
