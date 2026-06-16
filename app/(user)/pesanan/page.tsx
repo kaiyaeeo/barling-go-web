@@ -88,7 +88,7 @@
     const processingCount = orders?.filter(o => ["paid", "processing", "packing"].includes(o.status)).length || 0
     
     return (
-        <div className="flex min-h-screen bg-[#F5F5F5] antialiased text-gray-800">
+        <div className="flex min-h-screen bg-[#F8FAFC] antialiased text-gray-800">
         
         {/* ── SIDEBAR (tetap 280px) ── */}
         <div className="hidden md:block w-[280px] shrink-0 bg-white border-r border-gray-200 z-10">
@@ -121,7 +121,7 @@
             </div>
 
             {/* CONTAINER CONTENT */}
-            <div className="p-6 lg:p-10 w-full max-w-5xl mx-auto space-y-6">
+            <div className="p-6 lg:p-10 w-full max-w-6xl mx-auto space-y-6">
             
             {/* Header & Stats Widget */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

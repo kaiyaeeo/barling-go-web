@@ -52,7 +52,7 @@
 
     return (
         <main className="min-h-screen bg-gray-50 pb-16">
-        <div className="max-w-5xl mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto px-6 py-8">
 
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
@@ -175,7 +175,7 @@
 
         {/* Footer */}
         <footer className="border-t border-gray-100 mt-4">
-            <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
             <div>
                 <p className="text-sm font-bold text-gray-700">BARLING-GO</p>
                 <p className="text-xs text-gray-400">© 2026 Memberdayakan UMKM Barlingmascakep.</p>

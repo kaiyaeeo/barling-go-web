@@ -106,7 +106,7 @@
     })
 
     return (
-        <div className="flex min-h-screen bg-[#F5F5F5] antialiased text-gray-800">
+        <div className="flex min-h-screen bg-[#F8FAFC] antialiased text-gray-800">
         
         {/* ── SIDEBAR (tetap 280px) ── */}
         <div className="hidden md:block w-[280px] shrink-0 bg-white border-r border-gray-200 z-10">
@@ -138,7 +138,7 @@
             </div>
 
             {/* CONTAINER CONTENT */}
-            <div className="p-6 lg:p-10 w-full max-w-5xl mx-auto space-y-6">
+            <div className="p-6 lg:p-10 w-full max-w-6xl mx-auto space-y-6">
             
             {/* Header & Print Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
