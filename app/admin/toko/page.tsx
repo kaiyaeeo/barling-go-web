@@ -1,37 +1,47 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
-    // Memanggil komponen dari lokasi yang baru kamu buat
     import TokoForm from "@/components/ui/TokoForm"
 
     export default async function AdminTokoPage() {
     const supabase = await createClient()
     
-    // 1. Cek sesi user yang sedang login
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect("/login")
 
-    if (!user) {
-        redirect("/login")
-    }
-
-    // 2. Ambil data profil dari database untuk dijadikan initialData
+    // 1. Ambil Profil Toko
     const { data: profile } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, avatar_url, umkm_name, umkm_logo, umkm_description, address, city, postal_code, promo_package")
+        .select("*")
         .eq("id", user.id)
         .single()
 
+    // 2. Ambil Statistik Produk dari Database
+    const { data: products } = await supabase
+        .from("products")
+        .select("rating, total_sold")
+        .eq("seller_id", user.id)
+        .eq("is_active", true)
+
+    // 3. Kalkulasi Angka Nyata
+    const activeProducts = products?.length || 0
+    const totalSold = products?.reduce((sum, p) => sum + (p.total_sold || 0), 0) || 0
+    const avgRating = activeProducts > 0
+        ? (products!.reduce((sum, p) => sum + (Number(p.rating) || 0), 0) / activeProducts)
+        : 0
+
+    const stats = { activeProducts, totalSold, avgRating }
+
     return (
-        <main className="min-h-screen bg-gray-50/50 p-6 md:p-8">
-        <div className="max-w-3xl mx-auto">
+        <main className="min-h-screen bg-[#F5F5F5] pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Profil Toko & UMKM</h1>
+            <h1 className="text-2xl font-black text-gray-900">Profil Toko & UMKM</h1>
             <p className="text-sm text-gray-500 mt-1">Kelola informasi publik dan data pemilik toko Barling-GO Anda.</p>
             </div>
 
-            {/* 3. Menampilkan Form yang sudah kamu buat */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-            <TokoForm initialData={profile} />
-            </div>
+            {/* Kirim data profil DAN statistik ke dalam Form */}
+            <TokoForm initialData={profile} stats={stats} />
+            
         </div>
         </main>
     )
