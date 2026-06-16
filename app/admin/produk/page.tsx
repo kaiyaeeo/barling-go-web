@@ -7,6 +7,7 @@
     ShoppingBag, Eye, EyeOff, ArrowUpRight
     } from "lucide-react"
     import ProductRowActions from "@/components/admin/dashboard/ProductRowActions"
+    import DeleteProductButton from "@/components/admin/DeleteProductButton" // <-- Import komponen hapusnya di sini
 
     type SearchParams = Promise<{ q?: string; page?: string; status?: string }>
 
@@ -67,8 +68,8 @@
         : null
 
     const tabs = [
-        { key: "all",      label: "Semua",        count: totalCount      ?? 0, dot: ""                  },
-        { key: "active",   label: "Aktif",        count: activeCount     ?? 0, dot: "bg-emerald-400"    },
+        { key: "all",      label: "Semua",        count: totalCount    ?? 0, dot: ""                  },
+        { key: "active",   label: "Aktif",        count: activeCount   ?? 0, dot: "bg-emerald-400"    },
         { key: "inactive", label: "Nonaktif",     count: inactiveCount   ?? 0, dot: "bg-gray-400"       },
         { key: "low",      label: "Stok Menipis", count: lowStockCount   ?? 0, dot: "bg-amber-400"      },
         { key: "empty",    label: "Stok Habis",   count: outOfStockCount ?? 0, dot: "bg-red-400"        },
@@ -91,7 +92,7 @@
     return (
         <main className="min-h-screen bg-gray-50/60 pb-20">
 
-        {/* ===== TOP NAV (sama persis dengan dashboard) ===== */}
+        {/* ===== TOP NAV ===== */}
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14">
@@ -138,7 +139,7 @@
             </Link>
             </div>
 
-            {/* ===== KPI CARDS (klik langsung filter tab) ===== */}
+            {/* ===== KPI CARDS ===== */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {kpiCards.map(({ label, value, icon: Icon, color, bg, border, status: s }) => (
                 <Link
@@ -183,7 +184,6 @@
 
             {/* Tab + Search toolbar */}
             <div className="border-b border-gray-100">
-                {/* Tabs */}
                 <div className="flex items-center px-4 pt-3 gap-0 overflow-x-auto scrollbar-hide -mb-px">
                 {tabs.map((t) => (
                     <Link
@@ -206,7 +206,6 @@
                 ))}
                 </div>
 
-                {/* Search + filter bar */}
                 <div className="px-4 py-3 flex items-center gap-3 flex-wrap">
                 <form method="GET" className="flex-1 min-w-0 max-w-sm">
                     <input type="hidden" name="status" value={status} />
@@ -281,7 +280,7 @@
                     : PLACEHOLDER
 
                     const stockCfg =
-                    p.stock === 0   ? { label: "Habis",    cls: "bg-red-50 text-red-500 border-red-100",       bar: "bg-red-400"    } :
+                    p.stock === 0   ? { label: "Habis",   cls: "bg-red-50 text-red-500 border-red-100",      bar: "bg-red-400"    } :
                     p.stock <= 5    ? { label: "Menipis",  cls: "bg-amber-50 text-amber-600 border-amber-100", bar: "bg-amber-400"  } :
                                         { label: "Tersedia", cls: "bg-emerald-50 text-emerald-600 border-emerald-100", bar: "bg-emerald-400" }
 
@@ -293,12 +292,10 @@
                         {/* DESKTOP row */}
                         <div className="hidden md:grid grid-cols-[56px_1fr_140px_80px_140px_96px] items-center px-5 py-4">
 
-                        {/* Foto */}
                         <div className={`w-11 h-11 rounded-xl overflow-hidden bg-gray-100 shrink-0 ring-1 ${p.is_active ? "ring-gray-200" : "ring-gray-100 opacity-60"}`}>
                             <img src={img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
 
-                        {/* Nama */}
                         <div className="min-w-0 pr-4">
                             <p className={`text-sm font-bold truncate group-hover:text-[#6EB8BB] transition-colors ${p.is_active ? "text-gray-800" : "text-gray-400 line-through"}`}>
                             {p.name}
@@ -317,12 +314,10 @@
                             </div>
                         </div>
 
-                        {/* Harga */}
                         <p className={`text-sm font-bold ${p.is_active ? "text-gray-800" : "text-gray-400"}`}>
                             Rp {p.price.toLocaleString("id-ID")}
                         </p>
 
-                        {/* Stok */}
                         <div>
                             <p className={`text-sm font-black ${
                             p.stock === 0 ? "text-red-500" : p.stock <= 5 ? "text-amber-600" : p.is_active ? "text-gray-800" : "text-gray-400"
@@ -334,10 +329,8 @@
                             </span>
                         </div>
 
-                        {/* Status toggle */}
                         <ProductRowActions productId={p.id} isActive={p.is_active} />
 
-                        {/* Aksi */}
                         <div className="flex items-center justify-end gap-1">
                             <Link
                             href={`/admin/produk/${p.id}/edit`}
@@ -346,12 +339,9 @@
                             >
                             ✏️
                             </Link>
-                            <button
-                            title="Hapus"
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 transition-colors text-base"
-                            >
-                            🗑️
-                            </button>
+                            
+                            {/* Pemasangan Komponen DeleteProductButton di Desktop */}
+                            <DeleteProductButton id={p.id} name={p.name} />
                         </div>
                         </div>
 
@@ -372,11 +362,14 @@
                                 Stok: {p.stock} · {stockCfg.label}
                             </span>
                             </div>
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-3">
                             <ProductRowActions productId={p.id} isActive={p.is_active} />
                             <Link href={`/admin/produk/${p.id}/edit`} className="text-xs font-semibold text-[#6EB8BB] border border-[#6EB8BB]/30 px-3 py-1 rounded-lg hover:bg-[#E6F7F8] transition-all">
                                 Edit
                             </Link>
+                            
+                            {/* Pemasangan Komponen DeleteProductButton di Mobile */}
+                            <DeleteProductButton id={p.id} name={p.name} />
                             </div>
                         </div>
                         </div>
@@ -421,21 +414,6 @@
             </div>
             </div>
         </div>
-
-        {/* ===== FOOTER ===== */}
-        <footer className="border-t border-gray-100 bg-white mt-auto">
-            <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div>
-                <p className="text-sm font-extrabold tracking-tight text-gray-800">BARLING-GO</p>
-                <p className="text-xs text-gray-400 mt-0.5">© 2026 Memberdayakan UMKM Barlingmascakep.</p>
-            </div>
-            <div className="flex gap-5 text-xs text-gray-400">
-                {["Tentang Kami", "Pusat Bantuan", "Privasi", "Syarat & Ketentuan"].map((l) => (
-                <a key={l} href="#" className="hover:text-gray-600 transition-colors">{l}</a>
-                ))}
-            </div>
-            </div>
-        </footer>
         </main>
     )
     }

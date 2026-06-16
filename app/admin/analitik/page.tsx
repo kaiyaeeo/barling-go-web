@@ -262,21 +262,6 @@
                 </div>
             )}
             </div>
-
-            {/* ── Footer ── */}
-            <footer className="border-t border-gray-100 bg-white rounded-2xl">
-            <div className="px-6 py-5 flex items-center justify-between">
-                <div>
-                <p className="text-sm font-extrabold tracking-tight text-gray-800">BARLING-GO</p>
-                <p className="text-xs text-gray-400 mt-0.5">© 2026 Memberdayakan UMKM Barlingmascakep.</p>
-                </div>
-                <div className="flex gap-5 text-xs text-gray-400">
-                {["Tentang Kami", "Pusat Bantuan", "Privasi", "Syarat & Ketentuan"].map((l) => (
-                    <a key={l} href="#" className="hover:text-gray-600 transition-colors">{l}</a>
-                ))}
-                </div>
-            </div>
-            </footer>
         </div>
         </main>
     )
