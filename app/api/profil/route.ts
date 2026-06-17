@@ -1,7 +1,8 @@
     import { NextRequest, NextResponse } from "next/server"
     import { createClient } from "@/lib/supabase/server"
 
-    export async function PATCH(request: NextRequest) {
+    export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -18,7 +19,7 @@
     const { data, error } = await supabase
         .from("profiles")
         .update(updateData)
-        .eq("id", user.id)
+        .eq("id", id)
         .select()
         .single()
 
