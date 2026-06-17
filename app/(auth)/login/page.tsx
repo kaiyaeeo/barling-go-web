@@ -1,5 +1,6 @@
     "use client"
 
+    import { Suspense } from "react"
     import { useState } from "react"
     import Link from "next/link"
     import { useRouter, useSearchParams } from "next/navigation"
@@ -8,7 +9,7 @@
 
     type Mode = "pengunjung" | "seller"
 
-    export default function LoginPage() {
+    function LoginPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const supabase = createClient()
@@ -28,7 +29,6 @@
         setLoading(true)
         setError(null)
 
-        // 1. Sign In
         const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
         if (signInError) {
@@ -37,17 +37,14 @@
         return
         }
 
-        // 2. Ambil Role dari Database
         const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", data.user.id)
         .single()
 
-        // 3. LOGIKA REDIRECT (Diperbaiki)
-        // Jika RLS memblokir, profile akan null. Kita log errornya agar tahu.
         if (profileError) {
-        console.error("Supabase Error (RLS mungkin aktif):", profileError)
+        console.error("Supabase Error:", profileError)
         }
 
         const role = profile?.role
@@ -57,7 +54,6 @@
         } else if (role === "admin") {
         router.replace("/admin/dashboard")
         } else {
-        // Jika user biasa atau role gagal didapat, lempar ke dashboard biasa/nextUrl
         router.replace(nextUrl || "/dashboard")
         }
     }
@@ -76,7 +72,6 @@
 
     return (
         <div className="min-h-screen flex">
-        {/* Left branding panel */}
         <div className={`hidden lg:flex lg:w-5/12 flex-col justify-between p-12 transition-colors duration-300 ${isSeller ? "bg-[#9FCCCE]" : "bg-[#6EB8BB]"}`}>
             <Link href="/" className="flex items-center gap-1">
             <span className="text-2xl font-black text-white tracking-tight">BARLING</span>
@@ -104,7 +99,6 @@
             <p className="text-green-100/40 text-sm">© 2026 Barling-GO · Rooted in Barlingmascakep</p>
         </div>
 
-        {/* Right form panel */}
         <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
             <div className="w-full max-w-md">
             <Link href="/" className="flex items-center gap-1 mb-8 lg:hidden">
@@ -164,5 +158,13 @@
             </div>
         </div>
         </div>
+    )
+    }
+
+    export default function Page() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Memuat...</div>}>
+        <LoginPageContent />
+        </Suspense>
     )
     }

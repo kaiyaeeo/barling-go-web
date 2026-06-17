@@ -9,11 +9,11 @@
     import type { User as SupabaseUser } from "@supabase/supabase-js"
 
     const navLinks = [
-    { label: "Home",       href: "/" },
-    { label: "Wisata",     href: "/wisata" },
-    { label: "Kuliner",    href: "/kuliner" },
-    { label: "Oleh-Oleh",  href: "/oleh-oleh" },
-    { label: "AI Assistant", href: "/ai-assistant"},
+    { label: "Home",         href: "/", icon: false },
+    { label: "Wisata",       href: "/wisata", icon: false },
+    { label: "Kuliner",      href: "/kuliner", icon: false },
+    { label: "Oleh-Oleh",    href: "/oleh-oleh", icon: false },
+    { label: "AI Assistant", href: "/ai-assistant", icon: true },
     ]
 
     export default function Navbar() {

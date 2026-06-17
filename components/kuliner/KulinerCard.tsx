@@ -29,8 +29,8 @@
     // Pengaman kalkulasi diskon agar tidak terjadi error pembagian dengan 0
     const hasDiscount = item.discount_price && item.price && item.discount_price < item.price
     const discountPct = hasDiscount && item.price && item.price > 0 
-        ? Math.round(((item.price - item.discount_price) / item.price) * 100) 
-        : 0
+    ? Math.round(((item.price - (item.discount_price || 0)) / item.price) * 100) 
+    : 0
     const displayPrice = item.discount_price || item.price
 
     return (

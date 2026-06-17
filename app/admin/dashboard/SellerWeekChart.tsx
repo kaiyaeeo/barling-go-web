@@ -40,7 +40,7 @@
             width={36}
             />
             <Tooltip
-            formatter={(val: number) => [`Rp ${val.toLocaleString("id-ID")}`, "Omzet"]}
+            formatter={(val: any) => [`Rp ${Number(val || 0).toLocaleString("id-ID")}`, "Omzet"]}
             labelStyle={{ fontWeight: 600, color: "#111", marginBottom: 4 }}
             contentStyle={{
                 borderRadius: 12,

@@ -108,7 +108,7 @@
             rating: p.rating,
             review_count: p.total_sold,
             total_sold: p.total_sold,
-            category: p.categories?.name,
+            category: (p.categories as any)?.[0]?.name || (p.categories as any)?.name,
             source: "product",
             is_featured: p.is_featured,
             created_at: p.created_at

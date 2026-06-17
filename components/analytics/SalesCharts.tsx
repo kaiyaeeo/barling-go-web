@@ -32,7 +32,7 @@
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
             <YAxis tickFormatter={formatRp} tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
             <Tooltip
-            formatter={(val: number) => [`Rp ${val.toLocaleString("id-ID")}`, "Omzet"]}
+            formatter={(val: any) => [`Rp ${Number(val || 0).toLocaleString("id-ID")}`, "Omzet"]}
             labelStyle={{ fontWeight: 600, color: "#111" }}
             contentStyle={{ borderRadius: 12, border: "1px solid #eee", fontSize: 12 }}
             />
@@ -51,7 +51,7 @@
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
             <Tooltip
-            formatter={(val: number) => [val, "Pesanan"]}
+            formatter={(val: any) => [Number(val || 0), "Pesanan"]}
             contentStyle={{ borderRadius: 12, border: "1px solid #eee", fontSize: 12 }}
             />
             <Bar dataKey="order_count" fill="#4CAF50" radius={[4, 4, 0, 0]} name="Pesanan" />

@@ -41,7 +41,7 @@
             </div>
 
             {/* Kirim data profil DAN statistik ke dalam Form */}
-            <TokoForm initialData={profile} stats={stats} />
+            <TokoForm initialData={(profile || {}) as any} stats={stats} />
             
         </div>
         </main>

@@ -1,4 +1,4 @@
-    export default function SellerWeekChart() {
+    export default function SellerWeekChart({ data }: { data: any }) {
     const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
     const heights = ['h-[40%]', 'h-[60%]', 'h-[45%]', 'h-[80%]', 'h-[75%]', 'h-[100%]', 'h-[85%]']
 

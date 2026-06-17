@@ -46,7 +46,7 @@
             user_id: adOrder.seller_id,
             type: "payment_success",
             title: "🎉 Pembayaran Iklan Berhasil",
-            message: `Pembayaran paket promosi ${adOrder.ad_packages?.name} berhasil. Super Admin akan segera meninjau pengajuan iklan Anda.`,
+            message: `Pembayaran paket promosi ${(adOrder.ad_packages as any)?.[0]?.name || (adOrder.ad_packages as any)?.name} berhasil. Super Admin akan segera meninjau pengajuan iklan Anda.`,
             link: `/admin/iklan/${adOrder.id}`,
             metadata: { amount: adOrder.amount, payment_method: payment_type }
         })

@@ -15,8 +15,8 @@
         }
 
         // 3. Ambil data konteks (DIBUNGKUS TRY-CATCH AGAR AI TIDAK CRASH JIKA DB ERROR)
-        let destinations = []
-        let topProducts = []
+        let destinations: any[] = []
+        let topProducts: any[] = []
         
         try {
         const [destRes, prodRes] = await Promise.all([

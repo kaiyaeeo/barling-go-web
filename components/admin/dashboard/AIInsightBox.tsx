@@ -1,6 +1,6 @@
     import { Lightbulb, TrendingUp } from "lucide-react"
 
-    export default function AIInsightBox() {
+    export default function AIInsightBox({ text }: { text: any }) {
     return (
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 my-6 flex gap-4 items-start shadow-sm">
         <div className="bg-green-100 p-2.5 rounded-lg text-green-700 shrink-0">
