@@ -25,8 +25,12 @@
 
     export default function KulinerCard({ item, isLoggedIn, inWishlist }: { item: KulinerItem; isLoggedIn: boolean; inWishlist?: boolean }) {
     const href = item.source === "content" ? `/kuliner/${item.slug}` : `/produk/${item.slug}`
+    
+    // Pengaman kalkulasi diskon agar tidak terjadi error pembagian dengan 0
     const hasDiscount = item.discount_price && item.price && item.discount_price < item.price
-    const discountPct = hasDiscount ? Math.round(((item.price - item.discount_price) / item.price) * 100) : 0
+    const discountPct = hasDiscount && item.price && item.price > 0 
+        ? Math.round(((item.price - item.discount_price) / item.price) * 100) 
+        : 0
     const displayPrice = item.discount_price || item.price
 
     return (
@@ -52,7 +56,7 @@
             </span>
 
             {/* Discount Badge */}
-            {hasDiscount && (
+            {hasDiscount && discountPct > 0 && (
             <span className="absolute top-3 right-16 text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-red-600 px-2.5 py-1 rounded-full shadow-md z-10">
                 -{discountPct}%
             </span>
@@ -133,7 +137,7 @@
                 {hasDiscount && (
                     <p className="text-xs line-through text-gray-400 font-medium">Rp {item.price?.toLocaleString("id-ID")}</p>
                 )}
-                {hasDiscount && (
+                {hasDiscount && discountPct > 0 && (
                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                     Hemat {discountPct}%
                     </span>
@@ -147,13 +151,7 @@
 
             {/* Action Button */}
             {item.source === "product" && (
-            <div
-                onClick={(e) => {
-                e.preventDefault()
-                window.location.href = href
-                }}
-                className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#6EB8BB] to-[#5AA4A7] text-white text-xs font-bold hover:shadow-lg hover:shadow-[#6EB8BB]/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]"
-            >
+            <div className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#6EB8BB] to-[#5AA4A7] text-white text-xs font-bold hover:shadow-lg hover:shadow-[#6EB8BB]/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]">
                 <ShoppingCart size={14} /> Lihat & Pesan
             </div>
             )}

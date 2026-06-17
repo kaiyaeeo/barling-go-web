@@ -37,21 +37,21 @@
     // Ambil user session
     useEffect(() => {
         async function getUser() {
-            const { data: { user: currentUser } } = await supabase.auth.getUser()
-            setUser(currentUser)
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        setUser(currentUser)
+        
+        if (currentUser) {
+            // Fetch wishlist user
+            const { data: wishlistData } = await supabase
+            .from("wishlists")
+            .select("product_id, content_id")
+            .eq("user_id", currentUser.id)
             
-            if (currentUser) {
-                // Fetch wishlist user
-                const { data: wishlistData } = await supabase
-                    .from("wishlists")
-                    .select("product_id, content_id")
-                    .eq("user_id", currentUser.id)
-                
-                const wishlistIds = new Set(
-                    wishlistData?.map((w: any) => w.product_id || w.content_id).filter(Boolean) || []
-                )
-                setWishlists(wishlistIds)
-            }
+            const wishlistIds = new Set(
+            wishlistData?.map((w: any) => w.product_id || w.content_id).filter(Boolean) || []
+            )
+            setWishlists(wishlistIds)
+        }
         }
         getUser()
     }, [supabase])
@@ -99,9 +99,9 @@
             title: p.name,
             slug: p.slug,
             image: p.images?.[0],
-            seller_name: p.profiles?.umkm_name || p.profiles?.full_name,
-            seller_id: p.profiles?.id,
-            kabupaten: p.profiles?.city || "",
+            seller_name: (p.profiles as any)?.[0]?.umkm_name || (p.profiles as any)?.umkm_name || (p.profiles as any)?.[0]?.full_name || (p.profiles as any)?.full_name,
+            seller_id: (p.profiles as any)?.[0]?.id || (p.profiles as any)?.id,
+            kabupaten: (p.profiles as any)?.[0]?.city || (p.profiles as any)?.city || "",
             price: p.price,
             discount_price: p.discount_price,
             price_max: 0,
@@ -262,10 +262,10 @@
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
                 {paginatedItems.map((item: any) => (
                     <KulinerCard 
-                        key={item.id}
-                        item={item}
-                        isLoggedIn={!!user}
-                        inWishlist={wishlists.has(item.id)}
+                    key={item.id}
+                    item={item}
+                    isLoggedIn={!!user}
+                    inWishlist={wishlists.has(item.id)}
                     />
                 ))}
                 </div>

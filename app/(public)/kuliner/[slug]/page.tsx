@@ -4,6 +4,7 @@
     import Navbar from "@/components/layout/navbar"
     import SavePlaceButton from "@/components/wisata/SavePlaceButton"
     import ReviewForm from "@/components/wisata/ReviewForm"
+    import BackButton from "@/components/ui/BackButton"
     import {
     MapPin, Clock, Phone, Star, Share2, Sparkles, ChevronRight,
     MessageSquare, BadgeCheck, UtensilsCrossed, Eye, ThumbsUp
@@ -100,6 +101,7 @@
 
             {/* Breadcrumb + title overlay */}
             <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 pb-8 max-w-7xl mx-auto">
+                <BackButton /> {/* Tombol Back ditambahkan di sini */}
                 <nav className="flex items-center gap-1.5 text-xs text-white/60 mb-3 flex-wrap">
                 <Link href="/" className="hover:text-white transition-colors">Beranda</Link>
                 <ChevronRight size={11} />
@@ -190,7 +192,7 @@
                         <div className="text-center">
                         <p className="text-4xl font-black text-gray-900">{avgRating}</p>
                         <div className="flex items-center gap-0.5 justify-center my-1">
-                            {[1,2,3,4,5].map(s => (
+                            {[1, 2, 3, 4, 5].map(s => (
                             <Star key={s} size={13} className={parseFloat(avgRating) >= s ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"} />
                             ))}
                         </div>
@@ -244,7 +246,7 @@
                                     <p className="text-[11px] text-gray-400">{timeAgo(rev.created_at)}</p>
                                 </div>
                                 <div className="flex items-center gap-0.5 mb-2">
-                                    {[1,2,3,4,5].map(s => (
+                                    {[1, 2, 3, 4, 5].map(s => (
                                     <Star key={s} size={12} className={s <= rev.rating ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"} />
                                     ))}
                                 </div>
@@ -407,7 +409,7 @@
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Statistik</p>
                     <div className="grid grid-cols-2 gap-3">
                     {[
-                        { label: "Ulasan",   value: reviews?.length ?? 0,     icon: MessageSquare, color: "text-blue-500",   bg: "bg-blue-50"   },
+                        { label: "Ulasan",   value: reviews?.length ?? 0,    icon: MessageSquare, color: "text-blue-500",   bg: "bg-blue-50"   },
                         { label: "Dilihat",  value: item.view_count ?? 0,      icon: Eye,           color: "text-purple-500", bg: "bg-purple-50" },
                         { label: "Rating",   value: avgRating ? `${avgRating}★` : "—", icon: Star, color: "text-amber-500", bg: "bg-amber-50"  },
                         { label: "Simpan",   value: "—",                       icon: ThumbsUp,      color: "text-rose-500",   bg: "bg-rose-50"   },

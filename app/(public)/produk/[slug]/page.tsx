@@ -1,6 +1,6 @@
     import { createClient } from "@/lib/supabase/server"
     import { notFound } from "next/navigation"
-    import BackButton from "@/components/product/BackButton"
+    import BackButton from "@/components/ui/BackButton"
     import {
     Star, MapPin, ShieldCheck, Package, Truck, RefreshCw,
     ChevronRight, Store, BadgeCheck, MessageCircle, Share2,
