@@ -22,8 +22,7 @@
     Loader2,
     Headphones,
     BookOpen,
-    Home,
-    CheckCircle2
+    Home
     } from "lucide-react"
     import UserSidebar from "@/components/user/UserSidebar"
 
@@ -159,6 +158,7 @@
     const [loading, setLoading] = useState(true)
     const [profile, setProfile] = useState<any>(null)
 
+    // ── Load user & profile ──
     useEffect(() => {
         async function loadData() {
         const { data: { user } } = await supabase.auth.getUser()
@@ -173,6 +173,7 @@
         loadData()
     }, [])
 
+    // ── Filter FAQ ──
     const filteredFAQs = searchQuery
         ? faqCategories.map(cat => ({
             ...cat,
@@ -250,7 +251,7 @@
                     Temukan jawaban cepat untuk pertanyaan Anda, atau hubungi tim support kami.
                     </p>
 
-                    {/* Search Bar */}
+                    {/* ── Search Bar ── */}
                     <div className="mt-6 relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                         <Search size={18} />
@@ -287,7 +288,7 @@
                 </div>
                 </div>
 
-                {/* ── QUICK LINKS ── */}
+                {/* ── STATS / QUICK LINKS ── */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                     { icon: BookOpen, label: "Panduan", sub: "Panduan lengkap", color: "bg-blue-50 text-blue-600 border-blue-200" },

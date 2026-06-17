@@ -107,12 +107,9 @@
                 className="h-10 w-auto object-contain max-w-[140px] hover:opacity-90 transition-opacity" 
             />
             </Link>
-            <span className="text-[10px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase select-none">
-            Client
-            </span>
         </div>
 
-        {/* ── User Identity */}
+        {/* ── User Identity ── */}
         <div className={`bg-gradient-to-br ${tierInfo.gradient} border-b border-slate-100 p-5`}>
             <div className="flex items-center gap-3.5 mb-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6EB8BB] to-[#9FCCCE] flex items-center justify-center text-white font-black text-lg shrink-0 overflow-hidden shadow-sm ring-2 ring-white">
@@ -144,13 +141,13 @@
             {tierInfo.nextPoints && (
                 <>
                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
-                <div
+                    <div
                     className="h-full bg-gradient-to-r from-[#6EB8BB] to-[#9FCCCE] rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${pointsPct}%` }}
-                />
+                    />
                 </div>
                 <p className="text-[9px] font-semibold text-slate-400 text-right">
-                {tierInfo.nextPoints - points} poin lagi → <span className="text-slate-700 font-bold">{tierInfo.nextLabel}</span>
+                    {tierInfo.nextPoints - points} poin lagi → <span className="text-slate-700 font-bold">{tierInfo.nextLabel}</span>
                 </p>
                 </>
             )}
@@ -171,7 +168,6 @@
                 <Link
                 key={item.href} 
                 href={item.href}
-                // PERUBAHAN: text-xs diubah ke text-sm di sini
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all relative ${
                     isActive
                     ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border-l-4 border-[#6EB8BB]"
@@ -195,15 +191,18 @@
         <div className="p-4 border-t border-slate-150 space-y-1 bg-slate-50/50 shrink-0">
             <Link
             href="/bantuan"
-            // PERUBAHAN: text-xs diubah ke text-sm di sini
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-white hover:text-slate-800 transition-all border border-transparent shadow-2xs hover:shadow-xs"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all border border-transparent ${
+                active === "bantuan"
+                ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border-[#6EB8BB]/20"
+                : "text-slate-500 hover:bg-white hover:text-slate-800 hover:border-slate-200"
+            }`}
             >
-            <HelpCircle size={16} className="text-slate-400" /> Pusat Bantuan
+            <HelpCircle size={16} className={active === "bantuan" ? "text-[#6EB8BB]" : "text-slate-400"} /> 
+            Pusat Bantuan
             </Link>
             <button
             onClick={handleLogout}
-            // PERUBAHAN: text-xs diubah ke text-sm di sini
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all w-full text-left border border-transparent"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all w-full text-left border border-transparent hover:border-red-200"
             >
             <LogOut size={16} className="text-red-400" /> Keluar
             </button>
