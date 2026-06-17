@@ -2,23 +2,27 @@
 
     import Link from "next/link"
     import { useState, useTransition } from "react"
+    import { ArrowRight, Loader2, MapPin, Star, ShoppingBag } from "lucide-react"
     import { getStorageUrl } from "@/lib/queries/landing-types"
 
     const PLACEHOLDER = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=70"
-    const tabs = ["All", "Kuliner", "Wisata", "Oleh-oleh"]
+    const tabs = [
+    { key: "All",       label: "Semua"      },
+    { key: "Kuliner",   label: "Kuliner"    },
+    { key: "Wisata",    label: "Wisata"     },
+    { key: "Oleh-oleh", label: "Oleh-oleh" },
+    ]
 
-    // Menggunakan any[] agar bisa menerima gabungan data Product (UMKM) dan Content (Wisata)
     type Props = { initialProducts: any[] }
 
     export default function FavoritesSection({ initialProducts }: Props) {
-    const [active, setActive] = useState("All")
-    const [products, setProducts] = useState<any[]>(initialProducts)
-    const [isPending, startTransition] = useTransition()
+    const [active,     setActive]     = useState("All")
+    const [products,   setProducts]   = useState<any[]>(initialProducts)
+    const [isPending,  startTransition] = useTransition()
 
     async function handleFilter(tab: string) {
         setActive(tab)
         startTransition(async () => {
-        // Fetch di client menggunakan API route
         const res = await fetch(`/api/produk/favorites?type=${tab}`)
         if (res.ok) {
             const data = await res.json()
@@ -27,61 +31,114 @@
         })
     }
 
-    // Helper untuk menentukan URL gambar yang benar
     const getImageUrl = (item: any) => {
         if (item.source === "wisata" && item.cover_image) {
-        return item.cover_image.startsWith("http") 
-            ? item.cover_image 
-            : getStorageUrl("content-images", item.cover_image);
+        return item.cover_image.startsWith("http")
+            ? item.cover_image
+            : getStorageUrl("content-images", item.cover_image)
         }
-        if (item.images?.[0]) {
-        return getStorageUrl("product-images", item.images[0]);
-        }
-        return PLACEHOLDER;
+        if (item.images?.[0]) return getStorageUrl("product-images", item.images[0])
+        return PLACEHOLDER
     }
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-3">
-            <h2 className="text-3xl font-bold text-gray-900">Our Favorite Destinations & UMKM</h2>
-            </div>
-            <p className="text-center text-sm text-gray-400 mb-8">
-            Find your favorite destinations and UMKM here in Barlingmas cakep
-            </p>
 
-            <div className="flex justify-center gap-2 mb-10">
+            {/* Header */}
+            <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-2 mb-3">
+                <div className="w-6 h-0.5 bg-[#6EB8BB] rounded-full" />
+                <span className="text-xs font-black text-[#6EB8BB] uppercase tracking-widest">Favorit Pilihan</span>
+                <div className="w-6 h-0.5 bg-[#6EB8BB] rounded-full" />
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-3">
+                Destinasi & UMKM Terbaik
+            </h2>
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+                Temukan destinasi wisata dan produk UMKM pilihan terbaik di Barlingmascakep
+            </p>
+            </div>
+
+            {/* Filter tabs */}
+            <div className="flex justify-center gap-2 mb-10 flex-wrap">
             {tabs.map((tab) => (
                 <button
-                key={tab}
-                onClick={() => handleFilter(tab)}
-                className={`px-5 py-2 text-sm font-medium rounded-full border transition-all ${
-                    active === tab ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                key={tab.key}
+                onClick={() => handleFilter(tab.key)}
+                className={`px-5 py-2 text-sm font-bold rounded-full border-2 transition-all active:scale-95 ${
+                    active === tab.key
+                    ? "bg-[#6EB8BB] text-white border-[#6EB8BB] shadow-md shadow-[#6EB8BB]/25"
+                    : "bg-white text-gray-500 border-gray-200 hover:border-[#6EB8BB] hover:text-[#6EB8BB]"
                 }`}
                 >
-                {tab}
+                {tab.label}
                 </button>
             ))}
             </div>
 
-            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 transition-opacity ${isPending ? "opacity-50" : "opacity-100"}`}>
-            {products.length === 0 ? (
-                <div className="col-span-4 text-center py-16 text-gray-400 text-sm">Belum ada produk untuk kategori ini.</div>
+            {/* Grid */}
+            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 transition-all duration-300 ${isPending ? "opacity-40 scale-[0.99]" : "opacity-100 scale-100"}`}>
+            {isPending ? (
+                <div className="col-span-4 flex justify-center py-16">
+                <Loader2 size={28} className="animate-spin text-[#6EB8BB]" />
+                </div>
+            ) : products.length === 0 ? (
+                <div className="col-span-4 text-center py-16 text-gray-400 text-sm bg-gray-50 rounded-2xl">
+                Belum ada konten untuk kategori ini.
+                </div>
             ) : (
                 products.map((item) => {
-                const imgSrc = getImageUrl(item);
-                // Menentukan rute klik (Wisata vs Produk)
-                const hrefLink = item.source === "wisata" ? `/wisata/${item.slug}` : `/produk/${item.slug}`;
+                const imgSrc  = getImageUrl(item)
+                const href    = item.source === "wisata" ? `/wisata/${item.slug}` : `/produk/${item.slug}`
+                const isWisata = item.source === "wisata"
 
                 return (
-                    <Link key={item.id} href={hrefLink} className="group relative rounded-2xl overflow-hidden aspect-square cursor-pointer">
-                    <img src={imgSrc} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform">
-                        <p className="text-white text-sm font-semibold">{item.name}</p>
-                        <span className="text-xs text-white/70 capitalize">
-                        {item.source === "wisata" ? "Destinasi Wisata" : (item.categories?.name || "UMKM")}
+                    <Link
+                    key={item.id}
+                    href={href}
+                    className="group relative rounded-2xl overflow-hidden bg-gray-100 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+                    style={{ aspectRatio: "1" }}
+                    >
+                    <img
+                        src={imgSrc}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+
+                    {/* Base gradient always visible */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+                    {/* Category pill */}
+                    <span className="absolute top-3 left-3 text-[9px] font-white text-white bg-[#6EB8BB]/80 backdrop-blur-sm px-2 py-0.5 rounded-full capitalize">
+                        {isWisata ? "Wisata" : (item.categories?.name ?? "UMKM")}
+                    </span>
+
+                    {/* Rating */}
+                    {item.rating > 0 && (
+                        <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-bold text-white bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                        <Star size={9} className="fill-amber-400 text-amber-400" /> {Number(item.rating).toFixed(1)}
                         </span>
+                    )}
+
+                    {/* Bottom info — always partially visible, expands on hover */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3.5">
+                        <p className="text-white text-sm font-black leading-tight mb-0.5 drop-shadow">{item.name}</p>
+                        <div className="flex items-center justify-between overflow-hidden max-h-0 group-hover:max-h-10 transition-all duration-300">
+                        {isWisata && item.kabupaten && (
+                            <span className="text-[10px] text-white/80 flex items-center gap-1">
+                            <MapPin size={9} /> {item.kabupaten}
+                            </span>
+                        )}
+                        {!isWisata && item.price && (
+                            <span className="text-[11px] font-white text-white">
+                            Rp {Number(item.discount_price ?? item.price).toLocaleString("id-ID")}
+                            </span>
+                        )}
+                        <span className="text-[9px] font-bold text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
+                            {isWisata ? "Lihat" : "Beli"}  →
+                        </span>
+                        </div>
                     </div>
                     </Link>
                 )
@@ -89,9 +146,13 @@
             )}
             </div>
 
+            {/* CTA */}
             <div className="flex justify-center mt-10">
-            <Link href="/wisata" className="px-8 py-3 text-sm font-semibold text-gray-800 border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all">
-                Explore More
+            <Link
+                href="/wisata"
+                className="inline-flex items-center gap-2 px-8 py-3 text-sm font-bold text-[#6EB8BB] border-2 border-[#6EB8BB]/30 rounded-2xl hover:bg-[#E6F7F8] hover:border-[#6EB8BB] transition-all"
+            >
+                Jelajahi Lebih Banyak <ArrowRight size={15} />
             </Link>
             </div>
         </div>
