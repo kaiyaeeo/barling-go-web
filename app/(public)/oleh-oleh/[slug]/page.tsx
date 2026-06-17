@@ -1,7 +1,7 @@
     import { createClient } from "@/lib/supabase/server"
     import { notFound } from "next/navigation"
     import Link from "next/link"
-    import Navbar from "@/components/layout/Navbar"
+    import Navbar from "@/components/layout/navbar"
     import { MapPin, Phone, Star, Share2, Sparkles, ChevronRight, ShoppingCart } from "lucide-react"
     import AddToCartButton from "@/components/produk/AddToCartButton"
 

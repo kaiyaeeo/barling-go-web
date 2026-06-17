@@ -1,6 +1,6 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
-    import PromotionForm from "@/components/admin/dashboard/PromotionForm"
+    import PromotionForm from "@/components/admin/PromotionForm"
     import { Tag } from "lucide-react"
 
     export default async function AdminPromosiPage() {
