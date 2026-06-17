@@ -4,10 +4,10 @@
     import UserSidebar from "@/components/user/UserSidebar"
     import { 
     Camera, MapPin, Star, Award, TrendingUp, Shield, Crown, 
-    ChevronRight, Sparkles, Gift, Clock, CreditCard, ShoppingBag, 
-    Truck, CheckCircle, BadgePercent, AlertCircle, Compass, ArrowRight, 
-  Lock, Smartphone // <-- TAMBAHKAN SMARTPHONE DI SINI
-} from "lucide-react"
+    ChevronRight, Sparkles, Clock, CreditCard, ShoppingBag, 
+    Truck, CheckCircle, Compass, ArrowRight, 
+    Lock, Smartphone, Home, ChevronLeft, Bell, Settings
+    } from "lucide-react"
     import Link from "next/link"
 
     export default async function ProfilPage() {
@@ -41,18 +41,46 @@
     const progress = Math.min((points / nextLevelPoints) * 100, 100)
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row antialiased text-gray-800">
+        <div className="flex min-h-screen bg-[#F8FAFC] antialiased text-gray-800 pb-12 md:pb-0">
         
         {/* ── SIDEBAR (tetap 280px) ── */}
-        <div className="w-full md:w-[280px] shrink-0 bg-white border-r border-gray-200 z-10">
+        <div className="hidden md:block w-[280px] shrink-0 bg-white border-r border-gray-200 z-10">
             <UserSidebar active="profil" profile={profile} />
         </div>
 
         {/* ── KONTEN UTAMA ── */}
-        <div className="flex-1 min-w-0 p-4 md:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto w-full space-y-5">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto relative">
             
-            {/* ── KARTU IDENTITAS UTAMA (TANPA SAMPUL - CLEAN STYLE) ── */}
+            {/* ── TOPBAR NAVIGATION ── */}
+            <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm h-16 flex items-center justify-between px-6 lg:px-10 shrink-0">
+            <div className="flex items-center gap-3">
+                <Link href="/" className="text-gray-400 hover:text-[#6EB8BB] transition-colors md:hidden">
+                <ChevronLeft size={20} />
+                </Link>
+                <div className="flex items-center gap-2 text-sm text-gray-500 font-bold">
+                <Link href="/" className="text-gray-800 hover:text-[#6EB8BB]">Beranda</Link>
+                <ChevronRight size={14} className="text-gray-300" />
+                <span className="text-gray-400 font-semibold">Profil Saya</span>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-2 px-4 py-2 bg-[#E6F7F8] hover:bg-[#C5EAE9] text-[#6EB8BB] rounded-xl text-xs font-bold transition-all shadow-sm">
+                <Home size={15} /> <span className="hidden sm:block">Beranda</span>
+                </Link>
+                <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
+                <Link href="/notifikasi" className="p-2 text-gray-400 hover:text-[#6EB8BB] hover:bg-gray-50 rounded-xl transition-all hidden sm:block">
+                <Bell size={18} />
+                </Link>
+                <Link href="/settings" className="p-2 text-gray-400 hover:text-[#6EB8BB] hover:bg-gray-50 rounded-xl transition-all hidden sm:block">
+                <Settings size={18} />
+                </Link>
+            </div>
+            </div>
+
+            {/* ── CONTENT AREA (Lebar dan Padding persis seperti halaman Ulasan) ── */}
+            <div className="p-6 lg:p-10 w-full max-w-7xl mx-auto space-y-6">
+            
+            {/* ── KARTU IDENTITAS UTAMA ── */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
                 {/* Avatar Area */}
@@ -109,7 +137,7 @@
                 </div>
             </div>
 
-            {/* ── STATUS TRANSAKSI BELANJA INTERAKTIF (LINK KE HALAMAN PESANAN) ── */}
+            {/* ── STATUS TRANSAKSI BELANJA INTERAKTIF ── */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
@@ -121,7 +149,6 @@
                 </Link>
                 </div>
                 
-                {/* Navigasi Status Terkoneksi Menggunakan Link */}
                 <div className="grid grid-cols-4 gap-2 text-center">
                 <Link href="/pesanan?tab=baru" className="p-3 rounded-xl hover:bg-gray-50 transition-all group relative block">
                     <div className="mx-auto w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-[#6EB8BB]/10 group-hover:text-[#6EB8BB] transition-colors mb-2">
@@ -188,61 +215,57 @@
                 </div>
             </div>
 
-            {/* ── GRID UTAMA: FORM + TIMELINE AKTIVITAS ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {/* Kolom kiri: Form Informasi Pribadi */}
-                <div className="lg:col-span-2 space-y-5">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div className="border-b border-gray-100 pb-4 mb-6">
-                    <h2 className="text-lg font-extrabold text-gray-900">Informasi Pribadi</h2>
-                    <p className="text-xs text-gray-400 mt-1">Kelola data profil Anda untuk manajemen akun yang aman.</p>
-                    </div>
-                    <ProfileForm profile={profile} email={user.email ?? ""} />
+            {/* ── FORM INFORMASI PRIBADI (FULL WIDTH SEKARANG) ── */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="border-b border-gray-100 pb-4 mb-6">
+                <h2 className="text-lg font-extrabold text-gray-900">Informasi Pribadi</h2>
+                <p className="text-xs text-gray-400 mt-1">Kelola data profil Anda untuk manajemen akun yang aman.</p>
                 </div>
-                </div>
+                <ProfileForm profile={profile} email={user.email ?? ""} />
+            </div>
 
-                {/* Kolom Kanan: Keamanan & Riwayat Aktivitas */}
-                <div className="space-y-5">
+            {/* ── GRID BAWAH: KEAMANAN & RIWAYAT AKTIVITAS ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                
                 {/* Komponen Keamanan */}
                 <SecurityCard twoFactorEnabled={profile?.two_factor_enabled ?? false} userId={user.id} />
 
                 {/* Riwayat Aktivitas & Perjalanan */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 h-full">
+                <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <Clock className="text-[#6EB8BB]" size={16} />
-                        Aktivitas Terbaru
+                    <Clock className="text-[#6EB8BB]" size={16} />
+                    Aktivitas Terbaru
                     </h3>
-                    </div>
-                    
-                    <div className="relative pl-4 border-l-2 border-gray-100 space-y-5 ml-2 py-1">
+                </div>
+                
+                <div className="relative pl-4 border-l-2 border-gray-100 space-y-5 ml-2 py-1">
                     <div className="relative group">
-                        <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-[#6EB8BB] group-hover:scale-125 transition-transform" />
-                        <div>
+                    <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-[#6EB8BB] group-hover:scale-125 transition-transform" />
+                    <div>
                         <p className="text-xs font-bold text-gray-800">Booking Tiket Wisata</p>
                         <p className="text-[10px] text-gray-400">Hari ini, 14.20 WIB</p>
-                        </div>
+                    </div>
                     </div>
 
                     <div className="relative group">
-                        <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-300 group-hover:scale-125 transition-transform" />
-                        <div>
+                    <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-300 group-hover:scale-125 transition-transform" />
+                    <div>
                         <p className="text-xs font-bold text-gray-800">Refund BarlingPay Sukses</p>
                         <p className="text-[10px] text-gray-400">15 Juni 2026, 09.15 WIB</p>
-                        </div>
+                    </div>
                     </div>
 
                     <div className="relative group">
-                        <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-300 group-hover:scale-125 transition-transform" />
-                        <div>
+                    <div className="absolute -left-[23px] top-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-300 group-hover:scale-125 transition-transform" />
+                    <div>
                         <p className="text-xs font-bold text-gray-800">Upgrade Level Akun</p>
                         <p className="text-[10px] text-gray-400">12 Juni 2026, 17.00 WIB</p>
-                        </div>
                     </div>
                     </div>
+                </div>
                 </div>
 
-                </div>
             </div>
             
             </div>
@@ -256,50 +279,35 @@
     const securityScore = twoFactorEnabled ? 95 : 60
     
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 shadow-sm h-full flex flex-col justify-between">
+        <div>
+            <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-            <Shield className="text-[#6EB8BB]" size={16} />
-            Keamanan Akun
+                <Shield className="text-[#6EB8BB]" size={16} />
+                Keamanan Akun
             </h3>
             <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${
-            twoFactorEnabled 
+                twoFactorEnabled 
                 ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border-[#6EB8BB]/20" 
                 : "bg-amber-50 text-amber-600 border-amber-100"
             }`}>
-            Skor: {securityScore}%
+                Skor: {securityScore}%
             </span>
+            </div>
+            <p className="text-xs text-gray-500 mb-2">Pastikan fitur keamanan tingkat lanjut aktif untuk melindungi transaksi dan data Anda.</p>
         </div>
 
-        <div className="space-y-2.5">
-            <a
-            href="/profil/ubah-password"
-            className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100/70 rounded-xl transition-all border border-gray-100 group"
-            >
+        <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-xl mt-auto">
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-[#6EB8BB] group-hover:border-[#6EB8BB]/30 transition-colors">
-                <Lock size={14} />
-                </div>
-                <div>
-                <span className="text-xs font-bold text-gray-700 block">Ubah Kata Sandi</span>
-                <span className="text-[9px] text-gray-400">Amankan sandi akun secara berkala</span>
-                </div>
-            </div>
-            <ChevronRight className="text-gray-300 group-hover:text-gray-500 transition-all" size={14} />
-            </a>
-
-            <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl">
-            <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shrink-0">
                 <Smartphone size={14} />
-                </div>
-                <div>
+            </div>
+            <div>
                 <p className="text-xs font-bold text-gray-700">Two-Factor Auth</p>
-                <p className="text-[9px] text-gray-400">Proteksi login ekstra</p>
-                </div>
+                <p className="text-[9px] text-gray-400">Proteksi login ekstra melalui perangkat.</p>
+            </div>
             </div>
             <TwoFactorToggle enabled={twoFactorEnabled} userId={userId} />
-            </div>
         </div>
         </div>
     )
@@ -307,7 +315,7 @@
 
     function TwoFactorToggle({ enabled, userId }: { enabled: boolean; userId: string }) {
     return (
-        <div className={`w-11 h-6 rounded-full transition-colors duration-300 ${enabled ? "bg-[#6EB8BB]" : "bg-gray-200"} relative cursor-pointer p-0.5 shadow-inner`}>
+        <div className={`w-11 h-6 rounded-full transition-colors duration-300 ${enabled ? "bg-[#6EB8BB]" : "bg-gray-200"} relative cursor-pointer p-0.5 shadow-inner shrink-0`}>
         <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 flex items-center justify-center ${enabled ? "translate-x-5" : "translate-x-0"}`}>
             {enabled && <span className="text-[8px] text-[#6EB8BB] font-black">✓</span>}
         </div>

@@ -21,12 +21,12 @@
     } from "lucide-react"
 
     const navItems = [
-    { href: "/dashboard",      label: "Dashboard",     icon: LayoutDashboard, key: "dashboard" },
-    { href: "/profil",         label: "Profil Saya",   icon: User,            key: "profil"    },
-    { href: "/pesanan",        label: "Pesanan",       icon: BookOpen,        key: "pesanan"   },
-    { href: "/wishlist",       label: "Tersimpan",     icon: Heart,           key: "saved"     },
-    { href: "/ulasan",         label: "Ulasan Saya",   icon: Star,            key: "ulasan"    },
-    { href: "/settings",       label: "Pengaturan",    icon: Settings,        key: "settings"  },
+    { href: "/dashboard",      label: "Dashboard",   icon: LayoutDashboard, key: "dashboard" },
+    { href: "/profil",         label: "Profil Saya", icon: User,            key: "profil"    },
+    { href: "/pesanan",        label: "Pesanan",     icon: BookOpen,        key: "pesanan"   },
+    { href: "/wishlist",       label: "Tersimpan",   icon: Heart,           key: "saved"     },
+    { href: "/ulasan",         label: "Ulasan Saya", icon: Star,            key: "ulasan"    },
+    { href: "/settings",       label: "Pengaturan",  icon: Settings,        key: "settings"  },
     ]
 
     type Profile = {
@@ -96,10 +96,9 @@
         : 100
 
     return (
-        <aside className="sticky top-0 h-screen overflow-y-auto scrollbar-none flex flex-col bg-white w-full border-r border-slate-200/50">
+        <aside className="sticky top-0 h-screen overflow-y-auto scrollbar-none flex flex-col bg-white w-full border-r border-slate-200/50 z-40">
         
         {/* ── App Logo ── */}
-        {/* REVISI: Mengubah py-5 menjadi h-16 agar tingginya persis sama dengan Topbar utama */}
         <div className="h-16 px-6 flex items-center justify-between border-b border-gray-100 shrink-0">
             <Link href="/" className="flex items-center">
             <img 
@@ -108,7 +107,7 @@
                 className="h-10 w-auto object-contain max-w-[140px] hover:opacity-90 transition-opacity" 
             />
             </Link>
-            <span className="text-[9px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase select-none">
+            <span className="text-[10px] font-bold bg-[#6EB8BB]/10 text-[#6EB8BB] px-2 py-0.5 rounded-full border border-[#6EB8BB]/20 uppercase select-none">
             Client
             </span>
         </div>
@@ -123,16 +122,16 @@
             </div>
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1">
-                <p className="text-sm font-black text-slate-800 truncate">{profile?.full_name ?? "Pengguna"}</p>
+                <p className="text-xl font-black text-slate-800 truncate">{profile?.full_name ?? "Pengguna"}</p>
                 <BadgeCheck size={14} className="text-[#6EB8BB] shrink-0 fill-[#6EB8BB]/10" />
                 </div>
-                <span className={`inline-flex items-center justify-center gap-1 text-[9px] font-bold px-2 py-0.5 mt-1 rounded-md border ${tierInfo.bgColor} ${tierInfo.textColor} ${tierInfo.border}`}>
-                <TierIcon size={10} /> {tierInfo.label}
+                <span className={`inline-flex items-center justify-center gap-1 text-[10px] font-bold px-2 py-0.5 mt-1 rounded-md border ${tierInfo.bgColor} ${tierInfo.textColor} ${tierInfo.border}`}>
+                <TierIcon size={11} /> {tierInfo.label}
                 </span>
             </div>
             </div>
 
-            {/* Points & Progress Bar (Brand color gradient, NO green) */}
+            {/* Points & Progress Bar */}
             <div className="bg-white/95 rounded-xl p-3 border border-slate-150 shadow-2xs space-y-2 backdrop-blur-md">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
@@ -145,46 +144,47 @@
             {tierInfo.nextPoints && (
                 <>
                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
-                    <div
+                <div
                     className="h-full bg-gradient-to-r from-[#6EB8BB] to-[#9FCCCE] rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${pointsPct}%` }}
-                    />
+                />
                 </div>
                 <p className="text-[9px] font-semibold text-slate-400 text-right">
-                    {tierInfo.nextPoints - points} poin lagi → <span className="text-slate-700 font-bold">{tierInfo.nextLabel}</span>
+                {tierInfo.nextPoints - points} poin lagi → <span className="text-slate-700 font-bold">{tierInfo.nextLabel}</span>
                 </p>
                 </>
             )}
             </div>
         </div>
 
-        {/* ── Nav Items */}
+        {/* ── Nav Items ── */}
         <nav className="p-4 space-y-1 flex-1">
             <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3.5 mt-1">Menu Utama</p>
             
             {navItems.map((item) => {
-            const Icon     = item.icon
+            const Icon   = item.icon
             const isActive = active
                 ? active === item.key
                 : pathname === item.href || pathname.startsWith(item.href + "/")
-                
+            
             return (
                 <Link
                 key={item.href} 
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-bold transition-all relative ${
+                // PERUBAHAN: text-xs diubah ke text-sm di sini
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all relative ${
                     isActive
                     ? "bg-[#6EB8BB]/10 text-[#6EB8BB] border-l-4 border-[#6EB8BB]"
                     : "text-slate-500 hover:bg-slate-50 hover:text-[#6EB8BB] border-l-4 border-transparent"
                 }`}
                 >
-                <Icon size={16} className={`shrink-0 ${isActive ? "text-[#6EB8BB]" : "text-slate-400"}`} />
+                <Icon size={18} className={`shrink-0 ${isActive ? "text-[#6EB8BB]" : "text-slate-400"}`} />
                 <span className="flex-1 truncate">{item.label}</span>
                 
                 {isActive ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-[#6EB8BB]" />
                 ) : (
-                    <ChevronRight size={12} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ChevronRight size={14} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
                 </Link>
             )
@@ -195,17 +195,18 @@
         <div className="p-4 border-t border-slate-150 space-y-1 bg-slate-50/50 shrink-0">
             <Link
             href="/bantuan"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-white hover:text-slate-800 transition-all border border-transparent shadow-2xs hover:shadow-xs"
+            // PERUBAHAN: text-xs diubah ke text-sm di sini
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-white hover:text-slate-800 transition-all border border-transparent shadow-2xs hover:shadow-xs"
             >
-            <HelpCircle size={14} className="text-slate-400" /> Pusat Bantuan
+            <HelpCircle size={16} className="text-slate-400" /> Pusat Bantuan
             </Link>
             <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all w-full text-left border border-transparent"
+            // PERUBAHAN: text-xs diubah ke text-sm di sini
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all w-full text-left border border-transparent"
             >
-            <LogOut size={14} className="text-red-400" /> Keluar
+            <LogOut size={16} className="text-red-400" /> Keluar
             </button>
-            
         </div>
 
         </aside>

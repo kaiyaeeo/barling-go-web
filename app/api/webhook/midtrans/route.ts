@@ -30,10 +30,10 @@
         return NextResponse.json({ error: "Invalid signature" }, { status: 403 })
     }
 
-    // Cari order berdasarkan order_number
+    // Cari order berdasarkan order_number, dan JANGAN LUPA ambil user_id
     const { data: order } = await supabase
         .from("orders")
-        .select("id, status, payment_status")
+        .select("id, status, payment_status, user_id") // <-- user_id ditambahkan di sini
         .eq("order_number", order_id)
         .single()
 
@@ -53,7 +53,7 @@
     let paidAt: string | null = null
 
     if (
-        transaction_status === "capture" && fraud_status === "accept" ||
+        (transaction_status === "capture" && fraud_status === "accept") ||
         transaction_status === "settlement"
     ) {
         paymentStatus = "paid"
@@ -70,7 +70,7 @@
         orderStatus = "cancelled"
     }
 
-    // Update order
+    // Update data pesanan
     const updateData: Record<string, any> = {
         payment_status: paymentStatus,
         status: orderStatus,
@@ -80,14 +80,34 @@
 
     await supabase.from("orders").update(updateData).eq("id", order.id)
 
-    // Auto-generate invoice jika sudah paid
+    // ===== SISTEM NOTIFIKASI OTOMATIS =====
     if (paymentStatus === "paid") {
+        // 1. Kirim Notifikasi Sukses
+        await supabase.from("user_notifications").insert({
+        user_id: order.user_id,
+        title: "Pembayaran Berhasil! 🎉",
+        message: `Pembayaran untuk pesanan ${order_id} telah kami terima. UMKM sedang menyiapkan pesananmu.`,
+        type: "pembayaran",
+        reference_id: order.id
+        });
+
+        // 2. Auto-generate invoice
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
         fetch(`${siteUrl}/api/invoice`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id }),
         }).catch(console.error)
+
+    } else if (paymentStatus === "failed") {
+        // Kirim Notifikasi Gagal/Expired (Batal otomatis)
+        await supabase.from("user_notifications").insert({
+        user_id: order.user_id,
+        title: "Pembayaran Dibatalkan ❌",
+        message: `Batas waktu pembayaran pesanan ${order_id} telah habis atau pesanan dibatalkan.`,
+        type: "sistem",
+        reference_id: order.id
+        });
     }
 
     console.log(`Order ${order_id} updated: payment=${paymentStatus}, status=${orderStatus}`)
