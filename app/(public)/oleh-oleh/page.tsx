@@ -238,20 +238,6 @@
                 </div>
             )}
             </div>
-
-            <footer className="border-t border-gray-100 mt-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                <p className="font-black text-gray-900">BARLING-GO</p>
-                <p className="text-xs text-gray-400 mt-0.5">© 2026 BARLING-GO. All Rights Reserved</p>
-                </div>
-                <div className="flex gap-6 text-sm text-gray-500">
-                {["Terms of Service","Privacy Policy","Contact Us"].map((l) => (
-                    <a key={l} href="#" className="hover:text-gray-800">{l}</a>
-                ))}
-                </div>
-            </div>
-            </footer>
         </main>
         </>
     )

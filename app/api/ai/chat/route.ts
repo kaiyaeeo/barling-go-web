@@ -1,37 +1,43 @@
     import { NextRequest, NextResponse } from "next/server"
     import { createClient } from "@/lib/supabase/server"
 
-    // POST /api/ai/chat
     export async function POST(request: NextRequest) {
-    const supabase = await createClient()
+    try {
+        const supabase = await createClient()
 
-    // Boleh diakses tanpa login, tapi history disimpan jika login
-    const { data: { user } } = await supabase.auth.getUser()
+        // 1. Cek user yang login (Aman dari error)
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    const { messages, sessionId } = await request.json()
-    if (!messages?.length) return NextResponse.json({ error: "messages required" }, { status: 400 })
+        // 2. Ambil payload dari frontend
+        const { messages, sessionId } = await request.json()
+        if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return NextResponse.json({ error: "Pesan tidak boleh kosong" }, { status: 400 })
+        }
 
-    // Ambil data konteks: produk & destinasi terpopuler untuk AI
-    const [{ data: destinations }, { data: topProducts }] = await Promise.all([
-        supabase.from("contents")
-        .select("title, type, description, location")
-        .eq("is_published", true)
-        .limit(20),
-        supabase.from("products")
-        .select("name, price, categories(name, type)")
-        .eq("is_active", true)
-        .order("rating", { ascending: false })
-        .limit(20),
-    ])
+        // 3. Ambil data konteks (DIBUNGKUS TRY-CATCH AGAR AI TIDAK CRASH JIKA DB ERROR)
+        let destinations = []
+        let topProducts = []
+        
+        try {
+        const [destRes, prodRes] = await Promise.all([
+            supabase.from("contents").select("title, type, description, location").eq("is_published", true).limit(10),
+            supabase.from("products").select("name, price, categories(name, type)").eq("is_active", true).order("rating", { ascending: false }).limit(10),
+        ])
+        destinations = destRes.data || []
+        topProducts = prodRes.data || []
+        } catch (dbError) {
+        console.error("Supabase Query Warning (Diabaikan, AI tetap lanjut):", dbError)
+        }
 
-    const contextText = [
+        // 4. Susun Context
+        const contextText = [
         "=== DESTINASI WISATA ===",
-        ...(destinations ?? []).map((d) => `- ${d.title} (${d.type}): ${d.description ?? ""} ${d.location ? `· Lokasi: ${d.location}` : ""}`),
+        ...destinations.map((d: any) => `- ${d.title} (${d.type}): ${d.description ?? ""} ${d.location ? `· Lokasi: ${d.location}` : ""}`),
         "\n=== PRODUK & KULINER ===",
-        ...(topProducts ?? []).map((p: any) => `- ${p.name} (${p.categories?.name ?? p.categories?.type ?? ""}) - Rp ${Number(p.price).toLocaleString("id-ID")}`),
-    ].join("\n")
+        ...topProducts.map((p: any) => `- ${p.name} (${p.categories?.name ?? p.categories?.type ?? ""}) - Rp ${Number(p.price).toLocaleString("id-ID")}`),
+        ].join("\n")
 
-    const systemPrompt = `Kamu adalah Barling-GO AI Assistant, pemandu wisata dan kuliner interaktif untuk wilayah Barlingmascakep (Banjarnegara, Purbalingga, Banyumas, Cilacap, Kebumen).
+        const systemPrompt = `Kamu adalah Barling-GO AI Assistant, pemandu wisata dan kuliner interaktif untuk wilayah Barlingmascakep (Banjarnegara, Purbalingga, Banyumas, Cilacap, Kebumen).
     Tugasmu:
     1. Menjawab pertanyaan seputar pariwisata, makanan khas, dan UMKM di wilayah tersebut.
     2. Memberikan rekomendasi itinerary (rencana perjalanan) jika diminta.
@@ -41,25 +47,27 @@
     ${contextText}
 
     Jika ditanya di luar topik wisata/kuliner Barlingmascakep, arahkan kembali ke topik tersebut dengan ramah.
-    Jawab secara ringkas dan padat, gunakan emoji secukupnya agar lebih menarik.`
+    Jawab secara ringkas, asik, dan padat. Gunakan emoji secukupnya agar lebih menarik.`
 
-    // Mengubah format pesan agar sesuai dengan standar Gemini API
-    const geminiMessages = messages.map((m: any) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }]
-    }))
+        // 5. FORMAT PESAN STRICT KE GEMINI (Filter pesan kosong & pastikan role benar)
+        const geminiMessages = messages
+        .filter((m: any) => m.content && m.content.trim() !== "") // Buang pesan kosong
+        .map((m: any) => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }]
+        }))
 
-    try {
+        // 6. Validasi API Key
         const apiKey = process.env.GEMINI_API_KEY
         if (!apiKey) {
-        throw new Error("GEMINI_API_KEY tidak ditemukan di .env.local")
+        throw new Error("GEMINI_API_KEY belum dipasang di file .env")
         }
 
+        // 7. TEMBAK KE GEMINI API
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            // FITUR BARU: Menggunakan systemInstruction bawaan Gemini
             systemInstruction: {
             parts: [{ text: systemPrompt }]
             },
@@ -67,28 +75,39 @@
         }),
         })
 
+        const data = await response.json()
+
+        // 8. TANGKAP ERROR GEMINI
         if (!response.ok) {
-        const err = await response.json()
-        // Tampilkan error asli di terminal VS Code jika masih gagal
-        console.error("DETAIL ERROR GEMINI:", JSON.stringify(err, null, 2))
-        throw new Error(err.error?.message ?? "AI error")
+        console.error("\n=== DETAIL ERROR GEMINI API ===")
+        console.error(JSON.stringify(data, null, 2))
+        console.error("===============================\n")
+        throw new Error(data.error?.message ?? "API Gemini menolak permintaan.")
         }
 
-        const data = await response.json()
-        const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "Maaf, saya sedang tidak bisa merespons saat ini."
+        const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "Maaf, aku bingung mau jawab apa."
 
-        // Simpan history jika user login
+        // 9. SIMPAN HISTORY (Jika user login dan tidak ada error DB)
         if (user && sessionId) {
-        const lastUserMsg = messages[messages.length - 1]
-        await supabase.from("ai_chat_history").insert([
+        try {
+            const lastUserMsg = messages[messages.length - 1]
+            await supabase.from("ai_chat_history").insert([
             { user_id: user.id, session_id: sessionId, role: "user", content: lastUserMsg.content },
             { user_id: user.id, session_id: sessionId, role: "assistant", content: assistantMessage },
-        ])
+            ])
+        } catch (historyError) {
+            console.error("Gagal menyimpan chat history:", historyError)
+        }
         }
 
+        // 10. KEMBALIKAN JAWABAN
         return NextResponse.json({ message: assistantMessage })
+
     } catch (error: any) {
-        console.error("AI Chat Error:", error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("AI Chat Route Error:", error.message)
+        // Beri pesan ramah ke user agar web tidak terlihat rusak
+        return NextResponse.json({ 
+        message: "Aduh, otak AI-ku lagi nge-blank sebentar. Boleh tanya lagi dalam beberapa detik?" 
+        }, { status: 500 })
     }
     }

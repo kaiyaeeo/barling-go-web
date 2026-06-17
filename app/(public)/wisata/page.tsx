@@ -58,13 +58,13 @@
 
             {/* Search */}
             <form method="GET" className="mb-6">
-                <div className="relative max-w-2xl mx-auto">
+                <div className="relative">
                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     name="q"
                     defaultValue={q}
                     placeholder="Cari destinasi impianmu..."
-                    className="w-full pl-12 pr-5 py-3.5 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] bg-gray-50"
+                    className="w-full pl-12 pr-5 py-3 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6EB8BB]/30 focus:border-[#6EB8BB] bg-gray-50"
                 />
                 {kabupaten !== "Semua" && <input type="hidden" name="kabupaten" value={kabupaten} />}
                 {sort !== "terpopuler" && <input type="hidden" name="sort" value={sort} />}
@@ -150,21 +150,6 @@
             )}
 
             </div>
-
-            {/* Footer */}
-            <footer className="border-t border-gray-100 mt-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                <p className="font-black text-gray-900">BARLING-GO</p>
-                <p className="text-xs text-gray-400 mt-0.5">© 2026 BARLING-GO. All Rights Reserved</p>
-                </div>
-                <div className="flex gap-6 text-sm text-gray-500">
-                {["Tentang Kami", "Pusat Bantuan", "Privasi", "Syarat & Ketentuan"].map((l) => (
-                    <a key={l} href="#" className="hover:text-gray-800 transition-colors">{l}</a>
-                ))}
-                </div>
-            </div>
-            </footer>
         </main>
         </>
     )

@@ -4,6 +4,7 @@
     import { useState, useTransition } from "react"
     import { ArrowRight, Loader2, MapPin, Star, ShoppingBag } from "lucide-react"
     import { getStorageUrl } from "@/lib/queries/landing-types"
+    import { createClient } from "@/lib/supabase/client"
 
     const PLACEHOLDER = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=70"
     const tabs = [
@@ -16,17 +17,62 @@
     type Props = { initialProducts: any[] }
 
     export default function FavoritesSection({ initialProducts }: Props) {
-    const [active,     setActive]     = useState("All")
-    const [products,   setProducts]   = useState<any[]>(initialProducts)
-    const [isPending,  startTransition] = useTransition()
+    const supabase = createClient()
+    const [active,    setActive]    = useState("All")
+    const [products,  setProducts]  = useState<any[]>(initialProducts)
+    const [isPending, startTransition] = useTransition()
 
     async function handleFilter(tab: string) {
         setActive(tab)
         startTransition(async () => {
-        const res = await fetch(`/api/produk/favorites?type=${tab}`)
-        if (res.ok) {
-            const data = await res.json()
-            setProducts(data)
+        try {
+            if (tab === "All") {
+            // 1. Ambil data produk UMKM
+            const { data: prodData } = await supabase.from("products").select("*, categories(name)").limit(6)
+            
+            // 2. Ambil data wisata dari tabel 'contents' dengan type 'destinasi'
+            const { data: wisataData } = await supabase.from("contents").select("*").eq("type", "destinasi").limit(6)
+            
+            const combined = [
+                ...(prodData?.map(p => ({ ...p, source: "produk" })) || []),
+                ...(wisataData?.map(w => ({ ...w, source: "wisata" })) || [])
+            ]
+            
+            // Acak urutan agar campur antara wisata dan produk
+            setProducts(combined.sort(() => Math.random() - 0.5))
+
+            } else if (tab === "Wisata") {
+            // Mengambil wisata dari tabel 'contents' dengan type 'destinasi'
+            const { data } = await supabase.from("contents").select("*").eq("type", "destinasi").limit(8)
+            setProducts(data?.map(w => ({ ...w, source: "wisata" })) || [])
+
+            } else {
+            // Tab Kuliner atau Oleh-oleh
+            // PERBAIKAN: Cari berdasarkan kolom 'type' (huruf kecil), bukan nama
+            const { data: categories } = await supabase
+                .from("categories")
+                .select("id")
+                .eq("type", tab.toLowerCase())
+            
+            if (categories && categories.length > 0) {
+                // Ambil semua ID kategori yang cocok
+                const categoryIds = categories.map(c => c.id)
+                
+                // Ambil produk yang category_id-nya termasuk dalam daftar ID di atas
+                const { data } = await supabase
+                .from("products")
+                .select("*, categories(name)")
+                .in("category_id", categoryIds)
+                .limit(8)
+                
+                setProducts(data?.map(p => ({ ...p, source: "produk" })) || [])
+            } else {
+                setProducts([])
+            }
+            }
+        } catch (err) {
+            console.error("Gagal memfilter data:", err)
+            setProducts([]) 
         }
         })
     }
@@ -83,14 +129,14 @@
                 <div className="col-span-4 flex justify-center py-16">
                 <Loader2 size={28} className="animate-spin text-[#6EB8BB]" />
                 </div>
-            ) : products.length === 0 ? (
-                <div className="col-span-4 text-center py-16 text-gray-400 text-sm bg-gray-50 rounded-2xl">
+            ) : !Array.isArray(products) || products.length === 0 ? (
+                <div className="col-span-4 text-center py-16 text-gray-400 text-sm bg-gray-50 rounded-2xl font-medium">
                 Belum ada konten untuk kategori ini.
                 </div>
             ) : (
                 products.map((item) => {
                 const imgSrc  = getImageUrl(item)
-                const href    = item.source === "wisata" ? `/wisata/${item.slug}` : `/produk/${item.slug}`
+                const href    = item.source === "wisata" ? `/wisata/${item.slug || item.id}` : `/produk/${item.slug || item.id}`
                 const isWisata = item.source === "wisata"
 
                 return (
@@ -102,7 +148,7 @@
                     >
                     <img
                         src={imgSrc}
-                        alt={item.name}
+                        alt={item.name || item.title || "Image"}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
 
@@ -123,7 +169,9 @@
 
                     {/* Bottom info — always partially visible, expands on hover */}
                     <div className="absolute bottom-0 left-0 right-0 p-3.5">
-                        <p className="text-white text-sm font-black leading-tight mb-0.5 drop-shadow">{item.name}</p>
+                        <p className="text-white text-sm font-black leading-tight mb-0.5 drop-shadow">
+                        {item.name || item.title}
+                        </p>
                         <div className="flex items-center justify-between overflow-hidden max-h-0 group-hover:max-h-10 transition-all duration-300">
                         {isWisata && item.kabupaten && (
                             <span className="text-[10px] text-white/80 flex items-center gap-1">
@@ -131,11 +179,11 @@
                             </span>
                         )}
                         {!isWisata && item.price && (
-                            <span className="text-[11px] font-white text-white">
+                            <span className="text-[11px] font-white text-white font-semibold">
                             Rp {Number(item.discount_price ?? item.price).toLocaleString("id-ID")}
                             </span>
                         )}
-                        <span className="text-[9px] font-bold text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[9px] font-bold text-white/60 bg-white/10 px-2 py-0.5 rounded-full ml-auto">
                             {isWisata ? "Lihat" : "Beli"}  →
                         </span>
                         </div>
