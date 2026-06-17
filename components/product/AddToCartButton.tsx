@@ -8,7 +8,7 @@
     type Props = {
     productId: string
     stock: number
-    initialQty?: number   // qty yang sudah ada di cart (0 = belum)
+    initialQty?: number
     isLoggedIn: boolean
     }
 
@@ -28,11 +28,10 @@
         if (isOutOfStock) return
 
         setLoading(true)
-
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { router.push("/login"); return }
 
-        // Upsert: jika sudah ada update qty, jika belum insert baru
+        // Simpan ke tabel cart_items di Supabase
         const { error } = await supabase
         .from("cart_items")
         .upsert(
@@ -44,12 +43,8 @@
         if (!error) {
         setAdded(true)
         setInCart(true)
-        // Memberitahu komponen/halaman lain untuk refresh data keranjang
-        router.refresh()
+        router.refresh() // Update UI keranjang di header
         setTimeout(() => setAdded(false), 2000)
-        } else {
-        console.error(error)
-        alert("Gagal menambahkan ke keranjang")
         }
     }
 
@@ -70,7 +65,7 @@
 
         setLoading(false)
         router.refresh()
-        router.push("/keranjang") // Arahkan ke keranjang atau langsung ke checkout
+        router.push("/keranjang") // Arahkan ke halaman keranjang
     }
 
     return (
@@ -98,9 +93,7 @@
             </button>
             </div>
             <span className="text-xs font-semibold text-gray-400">
-            Stok: <span className={`font-black ${stock <= 5 && stock > 0 ? "text-amber-500" : isOutOfStock ? "text-red-500" : "text-gray-700"}`}>
-                {stock === 0 ? "Habis" : stock}
-            </span>
+            Stok: <span className={`font-black ${stock <= 5 && stock > 0 ? "text-amber-500" : isOutOfStock ? "text-red-500" : "text-gray-700"}`}>{stock === 0 ? "Habis" : stock}</span>
             </span>
         </div>
 
@@ -110,15 +103,10 @@
             onClick={handleAddToCart}
             disabled={loading || isOutOfStock}
             className={`flex-1 inline-flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all active:scale-[0.98] disabled:opacity-50 border-2 ${
-                added
-                ? "border-emerald-400 bg-emerald-50 text-emerald-600 shadow-sm"
-                : inCart
-                ? "border-[#6EB8BB]/40 bg-[#E6F7F8] text-[#6EB8BB] hover:bg-[#C5EAE9] hover:border-[#6EB8BB]/60"
-                : "border-[#6EB8BB] bg-white text-[#6EB8BB] hover:bg-[#E6F7F8] shadow-sm"
+                added ? "border-emerald-400 bg-emerald-50 text-emerald-600 shadow-sm" : inCart ? "border-[#6EB8BB]/40 bg-[#E6F7F8] text-[#6EB8BB] hover:bg-[#C5EAE9]" : "border-[#6EB8BB] bg-white text-[#6EB8BB] hover:bg-[#E6F7F8] shadow-sm"
             }`}
             >
-            {loading ? <Loader2 size={16} className="animate-spin" /> :
-            added   ? <Check size={16} />  : <ShoppingCart size={16} />}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : added ? <Check size={16} /> : <ShoppingCart size={16} />}
             {added ? "Ditambahkan!" : inCart ? "Update Jumlah" : "+ Keranjang"}
             </button>
 

@@ -1,9 +1,9 @@
     "use client"
 
     import Link from "next/link"
-    import Image from "next/image" // Tambahan import untuk Image
+    import Image from "next/image"
     import { useState, useEffect } from "react"
-    import { Menu, X, Search, LogOut, User, LayoutDashboard, Bell, ChevronDown } from "lucide-react"
+    import { Menu, X, Search, LogOut, User, LayoutDashboard, Bell, ChevronDown, ShoppingCart } from "lucide-react"
     import { createClient } from "@/lib/supabase/client"
     import type { User as SupabaseUser } from "@supabase/supabase-js"
 
@@ -12,7 +12,7 @@
     { label: "Wisata",     href: "/wisata" },
     { label: "Kuliner",    href: "/kuliner" },
     { label: "Oleh-Oleh",  href: "/oleh-oleh" },
-    { label: "AI Assistant", href: "/ai-assistant", icon: true },
+    { label: "AI Assistant", href: "/ai-assistant"},
     ]
 
     export default function Navbar() {
@@ -23,42 +23,90 @@
     const [user, setUser] = useState<SupabaseUser | null>(null)
     const [profile, setProfile] = useState<{ full_name: string | null; role: string; avatar_url: string | null } | null>(null)
     const [dropdownOpen, setDropdownOpen] = useState(false)
+    const [cartCount, setCartCount] = useState(0) // State untuk jumlah item di keranjang
+
+    // Inisialisasi Supabase Client di dalam komponen
     const supabase = createClient()
 
+    // Efek Transisi Scroll
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20)
         window.addEventListener("scroll", onScroll)
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
 
+    // Efek Autentikasi & Fetch Data Awal (User, Profil, Keranjang)
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => {
         setUser(user)
-        if (user) fetchProfile(user.id)
+        if (user) {
+            fetchProfile(user.id)
+            fetchCartCount(user.id)
+        }
         })
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null)
-        if (session?.user) fetchProfile(session.user.id)
-        else setProfile(null)
+        if (session?.user) {
+            fetchProfile(session.user.id)
+            fetchCartCount(session.user.id)
+        } else {
+            setProfile(null)
+            setCartCount(0) // Reset keranjang jika logout
+        }
         })
+
         return () => subscription.unsubscribe()
     }, [])
 
+    // Efek Supabase Real-time: Angka Keranjang otomatis update tanpa di-refresh!
+    useEffect(() => {
+        if (!user) return
+
+        const channel = supabase.channel('realtime_cart_navbar')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'cart_items', 
+            filter: `user_id=eq.${user.id}` 
+        }, () => {
+            // Jika ada perubahan di tabel cart_items (tambah/hapus barang), fetch ulang jumlahnya
+            fetchCartCount(user.id)
+        })
+        .subscribe()
+
+        return () => { supabase.removeChannel(channel) }
+    }, [user, supabase])
+
+    // Fungsi Mengambil Data Profil
     async function fetchProfile(userId: string) {
         const { data } = await supabase.from("profiles").select("full_name, role, avatar_url").eq("id", userId).single()
         setProfile(data)
     }
 
+    // Fungsi Mengambil Jumlah Barang Unik di Keranjang
+    async function fetchCartCount(userId: string) {
+        const { count } = await supabase
+        .from("cart_items")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        
+        setCartCount(count || 0)
+    }
+
+    // Fungsi Logout
     async function handleLogout() {
         await supabase.auth.signOut()
         setDropdownOpen(false)
         window.location.href = "/"
     }
 
+    // Fallback inisial nama untuk Avatar jika belum mengunggah foto
     const initials = profile?.full_name
         ? profile.full_name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase()
         : "U"
 
+    // Penyesuaian tautan dashboard berdasarkan Role
     const dashboardHref =
         profile?.role === "super_admin" ? "/super-admin/dashboard"
         : profile?.role === "admin" ? "/admin/dashboard"
@@ -69,19 +117,19 @@
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
             
-            {/* BAGIAN LOGO YANG SUDAH DIREVISI */}
+            {/* ── LOGO ── */}
             <Link href="/" className="flex items-center shrink-0">
                 <Image 
                 src="/logo.png" 
                 alt="Logo Barling-GO" 
-                width={160} // Sesuaikan angka ini untuk mengatur lebar logo
-                height={60} // Sesuaikan angka ini untuk mengatur tinggi logo
+                width={160}
+                height={60}
                 className="object-contain"
                 priority
                 />
             </Link>
 
-            {/* Desktop nav */}
+            {/* ── DESKTOP NAV LINKS ── */}
             <nav className="hidden md:flex items-center gap-0.5">
                 {navLinks.map((link) => (
                 <Link
@@ -95,9 +143,10 @@
                 ))}
             </nav>
 
-            {/* Right actions */}
+            {/* ── RIGHT ACTIONS (Desktop) ── */}
             <div className="hidden md:flex items-center gap-2">
-                {/* Search */}
+                
+                {/* Search Toggle */}
                 {searchOpen ? (
                 <div className="flex items-center gap-2">
                     <div className="relative">
@@ -123,6 +172,16 @@
 
                 {user ? (
                 <>
+                    {/* ── CART ICON (Hanya Muncul Jika Sudah Login) ── */}
+                    <Link href="/keranjang" className="p-2 text-gray-500 hover:text-[#6EB8BB] hover:bg-gray-50 rounded-lg transition-all relative group">
+                    <ShoppingCart size={17} />
+                    {cartCount > 0 && (
+                        <span className="absolute top-1 right-0.5 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                        {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                    )}
+                    </Link>
+
                     {/* Notification bell */}
                     <button className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all relative">
                     <Bell size={17} />
@@ -167,35 +226,51 @@
                 ) : (
                 <Link
                     href="/login"
-                    className="ml-1 px-5 py-2 text-sm font-bold text-white bg-[#6EB8BB] hover:bg-[#5AA4A7] rounded-xl transition-all"
+                    className="ml-1 px-5 py-2 text-sm font-bold text-white bg-[#6EB8BB] hover:bg-[#5AA4A7] rounded-xl transition-all shadow-sm"
                 >
                     Login
                 </Link>
                 )}
             </div>
 
-            {/* Mobile toggle */}
-            <button className="md:hidden p-2 text-gray-600 hover:bg-gray-50 rounded-lg" onClick={() => setMobileOpen(!mobileOpen)}>
+            {/* ── MOBILE RIGHT ACTIONS (Hamburger & Cart) ── */}
+            <div className="flex items-center gap-1 md:hidden">
+                
+                {user && (
+                <Link href="/keranjang" className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg relative">
+                    <ShoppingCart size={20} />
+                    {cartCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full shadow-sm">
+                        {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                    )}
+                </Link>
+                )}
+
+                <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" onClick={() => setMobileOpen(!mobileOpen)}>
                 {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+                </button>
+            </div>
+            
             </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* ── MOBILE MENU DROPDOWN ── */}
         {mobileOpen && (
-            <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
+            <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4 shadow-lg absolute w-full z-40">
             {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className="block py-3 text-sm font-medium text-gray-700 border-b border-gray-50" onClick={() => setMobileOpen(false)}>
+                <Link key={link.href} href={link.href} className="flex items-center gap-2 py-3.5 text-sm font-semibold text-gray-700 border-b border-gray-50" onClick={() => setMobileOpen(false)}>
+                {link.icon && <span>🤖</span>}
                 {link.label}
                 </Link>
             ))}
             {user ? (
-                <div className="mt-3 space-y-2">
-                <Link href={dashboardHref} className="block py-2.5 text-sm font-semibold text-[#6EB8BB] text-center border border-[#6EB8BB] rounded-xl">Dashboard</Link>
-                <button onClick={handleLogout} className="w-full py-2.5 text-sm font-semibold text-red-500 border border-red-200 rounded-xl">Keluar</button>
+                <div className="mt-4 space-y-2">
+                <Link href={dashboardHref} className="block py-2.5 text-sm font-bold text-[#6EB8BB] text-center border border-[#6EB8BB]/30 bg-[#E6F7F8] rounded-xl">Dashboard</Link>
+                <button onClick={handleLogout} className="w-full py-2.5 text-sm font-bold text-rose-500 border border-rose-200 bg-rose-50 rounded-xl">Keluar</button>
                 </div>
             ) : (
-                <Link href="/login" className="mt-3 block text-center py-2.5 text-sm font-bold text-white bg-[#6EB8BB] rounded-xl">Login</Link>
+                <Link href="/login" className="mt-4 block text-center py-3 text-sm font-bold text-white bg-[#6EB8BB] rounded-xl shadow-sm">Login / Daftar</Link>
             )}
             </div>
         )}
