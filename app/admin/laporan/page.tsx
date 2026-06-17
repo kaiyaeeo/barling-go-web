@@ -1,6 +1,6 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
-    import ExportButton from "@/components/admin/ExportButton"
+    import ExportButton from "@/components/ui/ExportButton"
     import { FileText, BarChart2, Package, DollarSign } from "lucide-react"
 
     export default async function AdminLaporanPage() {
