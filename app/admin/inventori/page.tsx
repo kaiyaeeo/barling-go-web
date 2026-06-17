@@ -1,7 +1,7 @@
     import { createClient } from "@/lib/supabase/server"
     import { redirect } from "next/navigation"
     import Link from "next/link"
-    import StockAdjustButton from "@/components/ui/StockAdjustButton"
+    import StockAdjustButton from "@/components/produk/StockAdjustButton"
     import { Package, AlertTriangle } from "lucide-react"
 
     export default async function AdminInventoriPage() {
